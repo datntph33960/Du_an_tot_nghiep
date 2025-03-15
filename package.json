@@ -1,0 +1,15 @@
+{
+  "name": "duantn_quanaothethaonamseven",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "sass public/sass/style.scss public/css/style.css -w"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "duantn_quanaothethaonamseven": "file:"
+  }
+}
