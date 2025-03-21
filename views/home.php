@@ -99,6 +99,8 @@
                                     <input value="<?=$name?>" type="hidden" name="name">
                                     <input value="<?=$image?>" type="hidden" name="image">
                                     <input value="<?=$price?>" type="hidden" name="price">
+                                    <input value="<?=$size?>" type="hidden" name="size">
+                                    <input value="<?=$color?>" type="hidden" name="color">
                                     <input value="1" type="hidden" name="product_quantity">
 
                                     <button type="submit" name="add_to_cart" id="toastr-success-top-right">
