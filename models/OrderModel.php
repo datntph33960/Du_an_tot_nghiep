@@ -22,15 +22,13 @@
                     products.image,
                     orderdetails.quantity,
                     orderdetails.price AS product_price,
-                    product_variant.size,
-                    product_variant.color
+                    products.size,
+                    products.color
                 FROM
                     products
                 JOIN
                     orderdetails ON products.product_id = orderdetails.product_id
-                JOIN
-                    product_variant ON products.product_id = product_variant.product_id
-                WHERE order_id = ?;
+             
             ";
         
             return pdo_query($sql, $order_id);
@@ -55,8 +53,8 @@
                     orderdetails.price,
                     products.name AS product_name,
                     products.image AS product_image,
-                    product_variant.size,
-                    product_variant.color
+                    products.size,
+                    products.color
                 FROM
                     orders
                 JOIN
@@ -65,9 +63,7 @@
                     orderdetails ON orders.order_id = orderdetails.order_id
                 JOIN
                     products ON orderdetails.product_id = products.product_id
-                JOIN
-                    product_variant ON products.product_id = product_variant.product_id
-                WHERE orders.user_id = ? AND orders.order_id = ?
+                
             ";
         
             return pdo_query($sql, $user_id, $order_id);
