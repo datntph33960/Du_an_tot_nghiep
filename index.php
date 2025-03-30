@@ -34,7 +34,7 @@
                 break;
             case 'chitietsanpham':
                 
-                require_once "views/productdetail.php";
+                require_once "views/product-detail.php";
                 break;
             case 'danh-muc-san-pham':
                         
