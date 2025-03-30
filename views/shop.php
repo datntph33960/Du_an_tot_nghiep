@@ -127,7 +127,7 @@
                                     
                                 </div>
                                 <div class="product__item__text">
-                                    <h6 class="text-truncate-1"><a href="index.php?url=chitietsanpham&id_sp=<?=$product_id?>&id_dm=<?=$category_id?>"><?=$name?></a></h6>
+                                    <h6 class="text-truncate-1"><a href="product-details.html"><?=$name?></a></h6>
                                     <div class="rating">
                                         <i class="fa fa-star"></i>
                                         <i class="fa fa-star"></i>
