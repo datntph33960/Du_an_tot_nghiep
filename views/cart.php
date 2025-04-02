@@ -119,12 +119,12 @@ if(isset($_SESSION['user'])) {
                             ?>
                             <tr>
                                 <td class="cart__product__item">
-                                    <a href="chitietsanpham&id_sp=<?=$product_id?>&id_dm=<?=$product['category_id']?>">
+                                    <a href="index.php?url=chitietsanpham&id_sp=<?=$product_id?>&id_dm=<?=$product['category_id']?>">
                                         <img src="upload/<?=$product_image?>" alt="">
                                     </a>
                                     <div class="cart__product__item__title">
                                         <h6 class="text-truncate-1">
-                                            <a href="chitietsanpham&id_sp=<?=$product_id?>&id_dm=<?=$product['category_id']?>" class="text-dark">
+                                            <a href="index.php?url=chitietsanpham&id_sp=<?=$product_id?>&id_dm=<?=$product['category_id']?>" class="text-dark">
                                                 <?=$product_name?>
                                             </a>
                                         </h6>

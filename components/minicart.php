@@ -72,12 +72,12 @@
 
     <div class="row">
         <div class="col-6">
-            <a href="gio-hang" class="button">Xem giỏ hàng</a>
+            <a href="index.php?url=gio-hang" class="button">Xem giỏ hàng</a>
             
         </div>
         <div class="col-6">
             
-            <a href="thanh-toan" class="button btn-outline-primary">Thanh toán</a>
+            <a href="index.php?url=thanh-toan" class="button btn-outline-primary">Thanh toán</a>
         </div>
     </div>
 
