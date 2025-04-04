@@ -70,7 +70,7 @@
             <div class="bg-light rounded h-100 p-4">
                 <h6 class="mb-4">
                     <a href="index.php?quanli=danh-sach-bai-viet" class="link-not-hover">Bài viết</a> 
-                     Thêm bài viết
+                    / Thêm bài viết
                 </h6>
                 <?=$html_alert?>
                 <label for="floatingInput">Tiêu đề bài viết</label>
