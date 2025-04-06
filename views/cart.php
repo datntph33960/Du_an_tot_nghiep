@@ -13,7 +13,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["add_to_cart"])) {
     $product_color = $_POST["color"]; // Lấy thông tin màu sắc
 
     // Đếm số lượng sản phẩm trong giỏ hàng
-    $product = $CartModel->select_cart_by_id($product_id, $user_id);
+    $product = $CartModel->select_cart_by_id($product_id, $user_id, $product_size, $product_color);
+
     
     // Kiểm tra xem có sản phẩm trong giỏ hàng hay không
     if($product && is_array($product)) {
@@ -34,6 +35,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["update_cart"]) && isse
     $user_id = $_SESSION['user']['id'];
     $product_id = $_POST["product_id"];
     $new_quantity = $_POST["quantity"];
+    $colors = $_POST["color"];
+$sizes = $_POST["size"];
     $index = 0; // Đếm số sản phẩm xóa
 
     for ($i = 0; $i < count($product_id); $i++) {
@@ -45,7 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["update_cart"]) && isse
             $CartModel->delete_product_in_cart($id, $user_id);
             $index += 1;
         } elseif($quantity > 0) {
-            $CartModel->update_cart($quantity, $id, $user_id);
+            $CartModel->update_cart($quantity, $id, $user_id, $sizes[$i], $colors[$i]);
         }
     }
     
@@ -148,8 +151,8 @@ if(isset($_SESSION['user'])) {
                                         </div>                                           
                                     </div>
                                 </td>
-                                <td class="cart__size"><?=htmlspecialchars($product_size)?></td> <!-- Thêm kích thước -->
-                                <td class="cart__color"><?=htmlspecialchars($product_color)?></td> <!-- Thêm màu sắc -->
+                                <td class="cart__size"><?=$product_size?></td> <!-- Thêm kích thước -->
+                                <td class="cart__color"><?=$product_color?></td> <!-- Thêm màu sắc -->
                                 <td class="cart__total"><?=number_format($totalPrice)?>đ</td>
                                 <td class="cart__close">
                                     <a href="index.php?url=gio-hang&xoa=<?=$cart_id?>">
@@ -191,7 +194,7 @@ if(isset($_SESSION['user'])) {
                         <li>Tổng <span><?=number_format($totalPayment)?>đ</span></li>
                     </ul>
                     <a href="index.php?url=thanh-toan" class="primary-btn">THANH TOÁN COD</a>
-                     <a href="thanh-toan-momo" class="btn-momo primary-btn mt-3">THANH TOÁN MOMO</a>
+                     <a href="index.php?url=thanh-toan-momo" class="btn-momo primary-btn mt-3">THANH TOÁN MOMO</a>
                 </div>
             </div>
         </div>

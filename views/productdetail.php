@@ -154,8 +154,8 @@ if (isset($_GET['id_sp'])) {
                                 <input value="<?=$price?>" type="hidden" name="price">
 
                                 <!-- Adding hidden inputs for size and color -->
-                                <input type="hidden" name="size" id="selected_size" value="">
-                                <input type="hidden" name="color" id="selected_color" value="">
+                                <input type="hidden" name="size" id="selected_size" value="<?=$size?>">
+                                <input type="hidden" name="color" id="selected_color" value="<?=$color?>">
                                 
                                 <div class="quantity">
                                     <button name="add_to_cart" style="border: none;" type="submit" class="cart-btn btn-primary">
@@ -264,3 +264,20 @@ if (isset($_GET['id_sp'])) {
     </div>
 </section>
 <!-- Similar Products Section End -->
+<script>
+    function updateSelectedSize() {
+        const selected = document.getElementById('size').value;
+        document.getElementById('selected_size').value = selected;
+    }
+
+    function updateSelectedColor() {
+        const selected = document.getElementById('color').value;
+        document.getElementById('selected_color').value = selected;
+    }
+
+    // Tự cập nhật giá trị khi trang load lần đầu (đảm bảo hidden input có giá trị mặc định)
+    document.addEventListener("DOMContentLoaded", function () {
+        updateSelectedSize();
+        updateSelectedColor();
+    });
+</script>

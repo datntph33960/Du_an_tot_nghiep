@@ -102,6 +102,11 @@
             pdo_execute($sql, $product_id );
             
         }
+        public function insert_product($name, $price, $sizes, $colors, $image) {
+            $sql = "INSERT INTO products (name, price, sizes, colors, image) VALUES (?, ?, ?, ?, ?)";
+            pdo_execute($sql, $name, $price, $sizes, $colors, $image);
+        }
+    
 
     }
 

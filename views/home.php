@@ -12,13 +12,13 @@
             <div id="header-carousel" class="carousel slide" data-ride="carousel">
                 <div class="carousel-inner" style="border-radius: 10px;">
                     <div class="carousel-item active">
-                        <img class="img-fluid" src="upload/sportbanner1.jpg" alt="Image">
+                        <img class="img-fluid" src="upload/sachbanner1.png" alt="Image">
                     </div>
                     <div class="carousel-item">
-                        <img class="img-fluid" src="upload/sportbanner2.jpg" alt="Image">
+                        <img class="img-fluid" src="upload/sachbanner2.png" alt="Image">
                     </div>
                     <div class="carousel-item">
-                        <img class="img-fluid" src="upload/sportbanner3.jpg" alt="Image">
+                        <img class="img-fluid" src="upload/sachbanner3.png" alt="Image">
                     </div>
                 </div>
                 <a class="carousel-control-prev" href="#header-carousel" data-slide="prev">

@@ -30,14 +30,14 @@ try {
                 $product_id = $arr_product_id[$i];
                 $quantity = $arr_quantity[$i];
                 $price = $arr_price[$i];
-                $size = $arr_size[$i];
-                $olor = $arr_color[$i];
+                $sizes = $arr_size[$i];
+                $colors = $arr_color[$i];
     
-                $OrderModel->insert_orderdetails($order_id, $product_id, $quantity, $price,$size,$color);
+                $OrderModel->insert_orderdetails($order_id, $product_id, $quantity, $price,$sizes,$colors);
             }
             // Sau khi đặt hàng xóa giỏ hàng
             $OrderModel->delete_cart_by_user_id($user_id);
-            header("Location: cam-on");
+            header("Location: index.php?url=cam-on");
         }
         
 
@@ -74,7 +74,7 @@ try {
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
-                    <h6 class="coupon__link"><span class="icon_tag_alt mr-1"></span>Tiến hành thanh toán đơn hàng <a class="text-primary" href="gio-hang">Trở lại giỏ hàng</a> </h6>
+                    <h6 class="coupon__link"><span class="icon_tag_alt mr-1"></span>Tiến hành thanh toán đơn hàng <a class="text-primary" href="index.php?url=gio-hang">Trở lại giỏ hàng</a> </h6>
                 </div>
             </div>
             <form action="" method="post" class="checkout__form">
@@ -160,8 +160,9 @@ try {
                                         <input type="hidden" name="product_id[]" value="<?=$product_id?>">
                                         <input type="hidden" name="quantity[]" value="<?=$product_quantity?>">
                                         <input type="hidden" name="price[]" value="<?=$product_price?>">    
-                                        <input type="hidden" name="price[]" value="<?=$product_size?>">    
-                                        <input type="hidden" name="price[]" value="<?=$product_color?>">    
+<input type="hidden" name="size[]" value="<?=$product_size?>">    
+<input type="hidden" name="color[]" value="<?=$product_color?>">    
+   
 
                                         <?=$i?>.
                                         <?=$product_name?>
@@ -179,13 +180,13 @@ try {
                                     <li>Tổng <span><?=number_format($totalPayment)?>đ</span></li>
                                 </ul>
                             </div>
-                            <!-- <div class="checkout__order__widget">
+                            <div class="checkout__order__widget">
                                 <label for="paypal">
                                     Thanh toán khi nhận hàng
                                     <input type="checkbox" id="paypal">
                                     <span class="checkmark"></span>
                                 </label>
-                            </div> -->
+                            </div>
                             <?php if($count_cart > 0) {?>
                             <div class="checkout__order__widget text-center text-dark mb-2">                        
                                  Thanh toán khi nhận hàng
@@ -216,7 +217,7 @@ try {
                             <div class="checkout__order__widget text-center text-primary mb-2">                        
                                 Chưa có sản phẩm trong giỏ hàng
                             </div> 
-                            <a href="cua-hang" class="site-btn btn">Xem sản phẩm</a>
+                            <a href="index.php?url=cua-hang" class="site-btn btn">Xem sản phẩm</a>
                             <?php }?>
                         </div>
                     </div>

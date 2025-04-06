@@ -16,22 +16,23 @@
 
         public function select_orderdetails_and_products($order_id) {
             $sql = "
-                SELECT
-                    products.product_id,
-                    products.name AS product_name,
-                    products.image,
-                    orderdetails.quantity,
-                    orderdetails.price AS product_price,
-                    products.size,
-                    products.color
-                FROM
-                    products
-                JOIN
-                    orderdetails ON products.product_id = orderdetails.product_id
-             
-            ";
-        
-            return pdo_query($sql, $order_id);
+    SELECT
+        products.product_id,
+        products.name AS product_name,
+        products.image,
+        orderdetails.quantity,
+        orderdetails.price AS product_price,
+        products.sizes,
+        products.colors
+    FROM
+        products
+    JOIN
+        orderdetails ON products.product_id = orderdetails.product_id
+    WHERE
+        orderdetails.order_id = ?
+";
+return pdo_query($sql, $order_id);
+
         }
 
         public function getFullOrderInformation($user_id, $order_id) {
@@ -53,8 +54,8 @@
                     orderdetails.price,
                     products.name AS product_name,
                     products.image AS product_image,
-                    products.size,
-                    products.color
+                    products.sizes,
+                    products.colors
                 FROM
                     orders
                 JOIN
@@ -76,10 +77,10 @@
             pdo_execute($sql, $user_id, $total, $address, $phone, $note);
         }
 
-        public function insert_orderdetails($order_id, $product_id, $quantity, $price, $size, $color) {
-            $sql = "INSERT INTO orderdetails(order_id, product_id, quantity, price, size, color) VALUES(?,?,?,?,?,?)";
+        public function insert_orderdetails($order_id, $product_id, $quantity, $price, $sizes, $colors) {
+            $sql = "INSERT INTO orderdetails(order_id, product_id, quantity, price, sizes, colors) VALUES(?,?,?,?,?,?)";
         
-            pdo_execute($sql, $order_id, $product_id, $quantity, $price, $size, $color);
+            pdo_execute($sql, $order_id, $product_id, $quantity, $price, $sizes, $colors);
         }
 
         public function delete_cart_by_user_id($user_id) {
