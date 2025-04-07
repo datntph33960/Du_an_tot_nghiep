@@ -13,9 +13,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["add_to_cart"])) {
     $product_color = $_POST["color"]; // Lấy thông tin màu sắc
 
     // Đếm số lượng sản phẩm trong giỏ hàng
-    $product = $CartModel->select_cart_by_id($product_id, $user_id, $product_size, $product_color);
+    $product = $ProductModel->select_cate_in_product($product_id);
+    $category_id = isset($product['category_id']) ? $product['category_id'] : 0;
 
-    
     // Kiểm tra xem có sản phẩm trong giỏ hàng hay không
     if($product && is_array($product)) {
         // Số lượng mới = số lượng hiện tại + số lượng vừa thêm
@@ -122,7 +122,7 @@ if(isset($_SESSION['user'])) {
                             ?>
                             <tr>
                                 <td class="cart__product__item">
-                                    <a href="index.php?url=chitietsanpham&id_sp=<?=$product_id?>&id_dm=<?=$product['category_id']?>">
+                                <a href="index.php?url=chitietsanpham&id_sp=<?=$product_id?>&id_dm=<?=$product['category_id']?>">
                                         <img src="upload/<?=$product_image?>" alt="">
                                     </a>
                                     <div class="cart__product__item__title">
@@ -142,6 +142,9 @@ if(isset($_SESSION['user'])) {
                                 </td>
                                 <td class="cart__price"><?=number_format($product_price)?>đ</td>
                                 <input type="hidden" name="product_id[]" value="<?=$product_id?>">
+                                <input type="hidden" name="color[]" value="<?=$product_color?>">
+                                <input type="hidden" name="size[]" value="<?=$product_size?>">
+
                                 <td class="cart__quantity">
                                     <div class="input-group float-left">
                                         <div class="input-next-cart d-flex"> 

@@ -37,13 +37,12 @@ class CartModel {
 
     public function update_cart($product_qty, $product_id, $user_id, $product_size, $product_color) {
         $sql = "UPDATE carts SET 
-            product_quantity = ?, 
-            product_size = ?, 
-            product_color = ? 
-            WHERE product_id = ? AND user_id = ?";
+            product_quantity = ?
+            WHERE product_id = ? AND user_id = ? AND product_size = ? AND product_color = ?";
+        
+        pdo_execute($sql, $product_qty, $product_id, $user_id, $product_size, $product_color);
+    }
     
-        pdo_execute($sql, $product_qty, $product_size, $product_color, $product_id, $user_id);
-    }    
 
     public function delete_product_in_cart($product_id, $user_id) {
         $sql = "DELETE FROM carts WHERE product_id = ? AND user_id = ?";
