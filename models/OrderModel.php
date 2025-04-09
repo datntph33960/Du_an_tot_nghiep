@@ -52,10 +52,10 @@ return pdo_query($sql, $order_id);
                     orderdetails.product_id,
                     orderdetails.quantity,
                     orderdetails.price,
+                    orderdetails.sizes AS size,
+                    orderdetails.colors AS color,
                     products.name AS product_name,
-                    products.image AS product_image,
-                    products.sizes,
-                    products.colors
+                    products.image AS product_image
                 FROM
                     orders
                 JOIN
@@ -64,11 +64,12 @@ return pdo_query($sql, $order_id);
                     orderdetails ON orders.order_id = orderdetails.order_id
                 JOIN
                     products ON orderdetails.product_id = products.product_id
-                
+                WHERE
+                    orders.user_id = ? AND orders.order_id = ?
             ";
-        
             return pdo_query($sql, $user_id, $order_id);
         }
+        
 
 
         public function insert_orders($user_id, $total, $address, $phone, $note) {

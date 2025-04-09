@@ -135,15 +135,15 @@ try {
                             <div class="col-lg-12">
                                 <div class="checkout__form__input">
                                     <p>Địa chỉ <span>*</span></p>
-                                    <input class="mb-0" type="text" name="address" value="<?=$temp['address']?>">
-                                    <span class="text-danger error"><?=$error['address']?></span>
+                                    <input class="mb-0" type="text" name="address" value="<?= htmlspecialchars($temp['address']) ?>">
+                                    <span class="text-danger error"><?= $error['address'] ?></span>
                                 </div>
                             </div>
                             <div class="col-lg-12">
                                 <div class="checkout__form__input">
                                     <p>Số điện thoại <span>*</span></p>
-                                    <input class="mb-0" type="text" name="phone" value="<?=$temp['phone']?>">
-                                    <span class="text-danger error"><?=$error['phone']?></span>
+                                    <input class="mb-0" type="text" name="phone" value="<?= htmlspecialchars($temp['phone']) ?>">
+                                    <span class="text-danger error"><?= $error['phone'] ?></span>
                                 </div>
                             </div>
                             <div class="col-lg-12">
@@ -157,7 +157,7 @@ try {
                             </div>
                             <div class="col-lg-5">
                                 <div class="cart__btn">
-                                    <a href="thanh-toan">Sử dụng địa chỉ mặc định</a>
+                                    <a href="index.php?url=thanh-toan">Sử dụng địa chỉ mặc định</a>
                                 </div>
                             </div>                   
                         </div>
@@ -237,7 +237,7 @@ try {
                             <div class="checkout__order__widget text-center text-primary mb-2">                        
                                 Chưa có sản phẩm trong giỏ hàng
                             </div> 
-                            <a href="cua-hang" class="site-btn btn">Xem sản phẩm</a>
+                            <a href="index.php?url=cua-hang" class="site-btn btn">Xem sản phẩm</a>
                             <?php } ?>
                         </div>
                     </div>

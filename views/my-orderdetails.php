@@ -76,9 +76,11 @@
                     <figure class="itemside mb-3">
                         <div class="aside"><img src="upload/<?=$product_image?>" class="img-sm border"></div>
                         <figcaption class="info align-self-center">
-                            <p class="title"><?=$product_name?> </p> 
-                            <span class="text-primary"><?=number_format($price)?>₫ </span> <span style="font-size: 16px;" class="text-dark" >x<?=$quantity?></span>
-                            <span class="text-primary"><?=$color?>₫ </span> <span style="font-size: 16px;" class="text-dark" >x<?=$size?></span>
+                             <p class="title"><?=$product_name?> </p> 
+                            <span class="text-primary"><?=number_format($price)?>₫ </span> 
+                            <span style="font-size: 16px;" class="text-dark">x<?=$quantity?></span><br>
+                            <span class="text-dark">Màu: <?=$color?></span> |
+                            <span class="text-dark">Kích thước: <?=$size?></span>
                         </figcaption>
                     </figure>
                 </li>

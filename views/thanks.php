@@ -7,7 +7,7 @@
         </div>
         <div class="text-center">
             <h3 class="mb-2">Cảm ơn quý khách hàng đã mua hàng !</h3>
-            <h5 class="mb-3">Rất mong quý khách hàng sẽ luôn luôn tin tưởng và ủng hồ FAHASA</h5>
+            <h5 class="mb-3">Rất mong quý khách hàng sẽ luôn luôn tin tưởng và ủng hồ SevenSport</h5>
             <a href="index.php?url=don-hang" class="btn btn-primary">Xem đơn hàng</a>
         </div>
     </div>

@@ -1,13 +1,14 @@
 <?php
     class ProductModel {
-        public function insert_product($category_id, $name, $image, $quantity, $price, $details, $short_description) {
-           
-           $sql = "INSERT INTO products 
-           (category_id, name, image, quantity, price, details, short_description)
-            VALUES (?,?,?,?,?,?,?)";
-
-            pdo_execute($sql, $category_id, $name, $image, $quantity, $price, $details, $short_description);
+        public function insert_product($category_id, $name, $image, $quantity, $price, $details, $short_description, $sizes, $colors) {
+            $sql = "INSERT INTO products 
+                    (category_id, name, image, quantity, price, details, short_description, sizes, colors)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        
+            // Gọi pdo_execute với các tham số
+            pdo_execute($sql, $category_id, $name, $image, $quantity, $price, $details, $short_description, $sizes, $colors);
         }
+        
 
         public function select_products() {
             $sql = "SELECT name FROM products WHERE status = 1";
@@ -83,25 +84,23 @@
             pdo_execute($sql, $product_id);
         }
 
-        public function update_product($category_id, $name, $image, $quantity, $price, $details, $short_description, $product_id) {
+        public function update_product($category_id, $name, $image, $quantity, $price, $details, $short_description, $sizes, $colors, $product_id) {
             $sql = "UPDATE products SET 
-            category_id = '".$category_id."', 
-            name = '".$name."',";
-    
-            if ($image != '') {
-                $sql .= " image = '".$image."',";
-            }
-
-            $sql .= " quantity = '".$quantity."', 
-                    price = '".$price."', 
-                    
-                    details = '".$details."', 
-                    short_description = '".$short_description."' 
-                    WHERE product_id = ".$product_id;
+                    category_id = ?, 
+                    name = ?, 
+                    image = ?, 
+                    quantity = ?, 
+                    price = ?, 
+                    details = ?, 
+                    short_description = ?, 
+                    sizes = ?, 
+                    colors = ? 
+                    WHERE product_id = ?";
             
-            
-            pdo_execute($sql);
+            pdo_execute($sql, $category_id, $name, $image, $quantity, $price, $details, $short_description, $sizes, $colors, $product_id);
         }
+        
+        
     }
 
     $ProductModel = new ProductModel();
