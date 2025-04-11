@@ -6,43 +6,32 @@
 ?>
 
 <!-- Banner Section Begin -->
-<section class="container my-3">
-    <div class="row">
-        <div class="col-lg-8 col-sm-12">
-            <div id="header-carousel" class="carousel slide" data-ride="carousel">
-                <div class="carousel-inner" style="border-radius: 10px;">
-                    <div class="carousel-item active">
-                        <img class="img-fluid" src="upload/sachbanner1.png" alt="Image">
-                    </div>
-                    <div class="carousel-item">
-                        <img class="img-fluid" src="upload/sachbanner2.png" alt="Image">
-                    </div>
-                    <div class="carousel-item">
-                        <img class="img-fluid" src="upload/sachbanner3.png" alt="Image">
-                    </div>
-                </div>
-                <a class="carousel-control-prev" href="#header-carousel" data-slide="prev">
-                    <div class="btn btn-dark" style="width: 45px; height: 45px;">
-                        <span class="carousel-control-prev-icon mb-n2"></span>
-                    </div>
-                </a>
-                <a class="carousel-control-next" href="#header-carousel" data-slide="next">
-                    <div class="btn btn-dark" style="width: 45px; height: 45px;">
-                        <span class="carousel-control-next-icon mb-n2"></span>
-                    </div>
-                </a>
+<section class="container-fluid my-3 px-0">
+    <div id="header-carousel" class="carousel slide" data-ride="carousel">
+        <div class="carousel-inner" style="border-radius: 0;">
+            <div class="carousel-item active">
+                <img class="img-fluid w-100" style="height: 80vh; object-fit: cover;" src="upload/sachbanner1.png" alt="Image">
+            </div>
+            <div class="carousel-item">
+                <img class="img-fluid w-100" style="height: 80vh; object-fit: cover;" src="upload/sachbanner2.png" alt="Image">
+            </div>
+            <div class="carousel-item">
+                <img class="img-fluid w-100" style="height: 80vh; object-fit: cover;" src="upload/sachbanner3.png" alt="Image">
             </div>
         </div>
-        <div class="col-lg-4">
-            <div class="product-offer">
-                <img class="img-fluid" src="upload/sportbanner-min1.jpg" alt="">
+        <a class="carousel-control-prev" href="#header-carousel" data-slide="prev">
+            <div class="btn btn-dark" style="width: 45px; height: 45px;">
+                <span class="carousel-control-prev-icon mb-n2"></span>
             </div>
-            <div class="product-offer mt-2">
-                <img class="img-fluid" src="upload/sportbanner-min2.jpg" alt="">
+        </a>
+        <a class="carousel-control-next" href="#header-carousel" data-slide="next">
+            <div class="btn btn-dark" style="width: 45px; height: 45px;">
+                <span class="carousel-control-next-icon mb-n2"></span>
             </div>
-        </div>
+        </a>
     </div>
 </section>
+
 <!-- Banner Section End -->
 
 <!-- Product Section Begin -->
@@ -102,10 +91,6 @@
                                     <input value="<?=$size?>" type="hidden" name="size">
                                     <input value="<?=$color?>" type="hidden" name="color">
                                     <input value="1" type="hidden" name="product_quantity">
-
-                                    <button type="submit" name="add_to_cart" id="toastr-success-top-right">
-                                        <a href="#"><span class="icon_bag_alt"></span></a>
-                                    </button>
                                 </form>
                                 <?php } else { ?>
                                     <button type="submit" onclick="alert('Vui lòng dăng nhập để thực hiện chức năng');" name="add_to_cart" id="toastr-success-top-right">
@@ -116,7 +101,7 @@
                         </ul>
                     </div>
                     <div class="product__item__text">
-                        <h6 class="text-truncate-1"><a href=""><?=$name?></a></h6>
+                        <h6 class="text-truncate-1"><a href="index.php?url=chitietsanpham&id_sp=<?=$product_id?>&id_dm=<?=$category_id?>"><?=$name?></a></h6>
                         <div class="rating">
                             <i class="fa fa-star"></i>
                             <i class="fa fa-star"></i>
@@ -183,11 +168,11 @@
                     ?>
                     <div class="trend__item">
                         <div class="trend__item__pic">
-                            <a href="chitietsanpham&id_sp=<?=$product_id?>&id_dm=<?=$category_id?>"><img src="upload/<?=$image?>" style="width: 90px;" alt=""></a>
+                            <a href="index.php?url=chitietsanpham&id_sp=<?=$product_id?>&id_dm=<?=$category_id?>"><img src="upload/<?=$image?>" style="width: 90px;" alt=""></a>
                         </div>
                         <div class="trend__item__text">
                             <h6>
-                                <a href="chitietsanpham&id_sp=<?=$product_id?>&id_dm=<?=$category_id?>" class="text-dark"><?=$name?></a>
+                                <a href="index.php?url=chitietsanpham&id_sp=<?=$product_id?>&id_dm=<?=$category_id?>" class="text-dark"><?=$name?></a>
                             </h6>
                             <div class="rating">
                                 <i class="fa fa-star"></i>
@@ -212,11 +197,11 @@
                     ?>
                     <div class="trend__item">
                         <div class="trend__item__pic">
-                            <a href="chitietsanpham&id_sp=<?=$product_id?>&id_dm=<?=$category_id?>"><img src="upload/<?=$image?>" style="width: 90px;" alt=""></a>
+                            <a href="index.php?url=chitietsanpham&id_sp=<?=$product_id?>&id_dm=<?=$category_id?>"><img src="upload/<?=$image?>" style="width: 90px;" alt=""></a>
                         </div>
                         <div class="trend__item__text">
                             <h6>
-                                <a href="chitietsanpham&id_sp=<?=$product_id?>&id_dm=<?=$category_id?>" class="text-dark"><?=$name?></a>
+                                <a href="index.php?url=chitietsanpham&id_sp=<?=$product_id?>&id_dm=<?=$category_id?>" class="text-dark"><?=$name?></a>
                             </h6>
                             <div class="rating">
                                 <i class="fa fa-star"></i>
@@ -241,11 +226,11 @@
                     ?>
                     <div class="trend__item">
                         <div class="trend__item__pic">
-                            <a href="chitietsanpham&id_sp=<?=$product_id?>&id_dm=<?=$category_id?>"><img src="upload/<?=$image?>" style="width: 90px;" alt=""></a>
+                            <a href="index.php?url=chitietsanpham&id_sp=<?=$product_id?>&id_dm=<?=$category_id?>"><img src="upload/<?=$image?>" style="width: 90px;" alt=""></a>
                         </div>
                         <div class="trend__item__text">
                             <h6>
-                                <a href="chitietsanpham&id_sp=<?=$product_id?>&id_dm=<?=$category_id?>" class="text-dark"><?=$name?></a>
+                                <a href="index.php?url=chitietsanpham&id_sp=<?=$product_id?>&id_dm=<?=$category_id?>" class="text-dark"><?=$name?></a>
                             </h6>
                             <div class="rating">
                                 <i class="fa fa-star"></i>
@@ -268,14 +253,9 @@
 <!-- Discount Section Begin -->
 <section class="discount">
     <div class="container">
-        <div class="row">
+        <div class="row d-flex justify-content-center">
             <div class="col-lg-6 p-0">
-                <div class="discount__pic">
-                    <img src="public/img/discount-sport.jpg" alt="Hình ảnh">
-                </div>
-            </div>
-            <div class="col-lg-6 p-0">
-                <div class="discount__text">
+                <div class="discount__text text-center">
                     <div class="discount__text__title">
                         <span>Khuyến mãi</span>
                         <h2>Giảm giá mùa thể thao</h2>

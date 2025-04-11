@@ -160,14 +160,15 @@ try {
                                         <input type="hidden" name="product_id[]" value="<?=$product_id?>">
                                         <input type="hidden" name="quantity[]" value="<?=$product_quantity?>">
                                         <input type="hidden" name="price[]" value="<?=$product_price?>">    
-<input type="hidden" name="size[]" value="<?=$product_size?>">    
-<input type="hidden" name="color[]" value="<?=$product_color?>">    
+                                       <input type="hidden" name="size[]" value="<?= htmlspecialchars($product_size) ?>"> <!-- Lưu kích thước -->
+                                        <input type="hidden" name="color[]" value="<?= htmlspecialchars($product_color) ?>">   
    
 
                                         <?=$i?>.
                                         <?=$product_name?>
                                         <a class="text-primary">x<?=$product_quantity?></a>
                                         <span><?=number_format($totalPrice)?>đ</span>
+                                        <span class="text-muted">(Kích thước: <?= htmlspecialchars($product_size) ?>, Màu sắc: <?= htmlspecialchars($product_color) ?>)</span>
                                     </li>
                                     <?php
                                         }

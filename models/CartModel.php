@@ -53,6 +53,11 @@ class CartModel {
         $sql = "DELETE FROM carts WHERE cart_id = ?";
         pdo_execute($sql, $cart_id);
     }
+    public function select_cart_by_cart_id($cart_id) {
+        $sql = "SELECT * FROM carts WHERE cart_id = ?";
+        return pdo_query_one($sql, $cart_id);
+    }
+    
 }
 
 $CartModel = new CartModel();

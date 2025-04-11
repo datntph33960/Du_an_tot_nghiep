@@ -16,13 +16,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["add_to_cart"])) {
     $product = $CartModel->select_cart_by_id($product_id, $user_id, $product_size, $product_color);
 
     
-    // Kiểm tra xem có sản phẩm trong giỏ hàng hay không
     if($product && is_array($product)) {
-        // Số lượng mới = số lượng hiện tại + số lượng vừa thêm
         $current_quantity = $product['product_quantity'];
         $new_quantity = $current_quantity + $product_quantity;
-
-        // Cập nhật số lượng
         $CartModel->update_cart($new_quantity, $product_id, $user_id, $product_size, $product_color);
         $success .= 'Đã cập nhật số lượng cho sản phẩm: ' . $product_name;
     } else {
@@ -36,27 +32,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["update_cart"]) && isse
     $product_id = $_POST["product_id"];
     $new_quantity = $_POST["quantity"];
     $colors = $_POST["color"];
-$sizes = $_POST["size"];
-    $index = 0; // Đếm số sản phẩm xóa
+    $sizes = $_POST["size"];
+    $index = 0;
 
     for ($i = 0; $i < count($product_id); $i++) {
         $id = $product_id[$i];
         $quantity = $new_quantity[$i];
-        
+        $size = $sizes[$i];
+        $color = $colors[$i];
+        $current = $CartModel->select_cart_by_id($id, $user_id, $size, $color);
+        $old_quantity = $current['product_quantity'];
+    
+        $change = $quantity - $old_quantity;
+    
         if ($quantity <= 0) {
-            // Nếu số lượng >=0 xóa sản phẩm trong giỏ hàng     
-            $CartModel->delete_product_in_cart($id, $user_id);
+            $CartModel->delete_product_in_cart($id, $user_id, $size, $color);
+            $ProductModel->increase_stock($id, $size, $color, $old_quantity);
             $index += 1;
-        } elseif($quantity > 0) {
-            $CartModel->update_cart($quantity, $id, $user_id, $sizes[$i], $colors[$i]);
+        } else {
+            $CartModel->update_cart($quantity, $id, $user_id, $size, $color);
         }
     }
-    
-    if ($index > 0) {
-        $success = 'Đã xóa ' . $index . ' sản phẩm ra khỏi giỏ hàng';
-    } else {
-        $success = 'Cập nhật thành công';
-    }
+    $success = "Đã cập nhật giỏ hàng thành công!";
 }
 
 if(isset($_GET['xoa'])) {

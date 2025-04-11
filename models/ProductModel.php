@@ -106,9 +106,23 @@
             $sql = "INSERT INTO products (name, price, sizes, colors, image) VALUES (?, ?, ?, ?, ?)";
             pdo_execute($sql, $name, $price, $sizes, $colors, $image);
         }
-    
-
+        public function updateInventory($product_id, $size, $color, $quantity) {
+            $sql_check = "SELECT quantity FROM product_variants WHERE product_id = ? AND size = ? AND color = ?";
+            $result = pdo_query_one($sql_check, $product_id, $size, $color);
+        
+            if ($result && $result['quantity'] >= $quantity) {
+                $sql_update = "UPDATE product_variants 
+                               SET quantity = quantity - ? 
+                               WHERE product_id = ? AND size = ? AND color = ?";
+                pdo_execute($sql_update, $quantity, $product_id, $size, $color);
+                return true;
+            }
+        
+            return false;
+        }
+        
     }
 
     $ProductModel = new ProductModel();
+    
 ?>

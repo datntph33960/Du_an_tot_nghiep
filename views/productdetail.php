@@ -100,40 +100,34 @@ if (isset($_GET['id_sp'])) {
                     <div class="short__description">
                         <?=$short_description?>
                     </div>
-
-                    <!-- Chọn kích thước -->
-<div class="product__details__size">
-    <label for="size">Kích thước:</label>
-    <select id="size" name="size" class="form-control" onchange="updateSelectedSize()">
-        <?php if (!empty($available_sizes)): ?>
-            <?php foreach ($available_sizes as $size): ?>
-                <option value="<?= htmlspecialchars($size, ENT_QUOTES, 'UTF-8') ?>">
-                    <?= htmlspecialchars($size, ENT_QUOTES, 'UTF-8') ?>
-                </option>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <option value="" disabled>Không có kích thước</option>
-        <?php endif; ?>
-    </select>
-</div>
-
-<!-- Chọn màu sắc -->
-<div class="product__details__color">
-    <label for="color">Màu sắc:</label>
-    <select id="color" name="color" class="form-control" onchange="updateSelectedColor()">
-        <?php if (!empty($available_colors)): ?>
-            <?php foreach ($available_colors as $color): ?>
-                <option value="<?= htmlspecialchars($color, ENT_QUOTES, 'UTF-8') ?>">
-                    <?= htmlspecialchars($color, ENT_QUOTES, 'UTF-8') ?>
-                </option>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <option value="" disabled>Không có màu sắc</option>
-        <?php endif; ?>
-    </select>
-</div>
-
-
+                    <div class="product__details__size">
+                        <label for="size">Kích thước:</label>
+                        <select id="size" name="size" class="form-control" onchange="updateSelectedSize()">
+                            <?php if (!empty($available_sizes)): ?>
+                                <?php foreach ($available_sizes as $size): ?>
+                                    <option value="<?= htmlspecialchars($size, ENT_QUOTES, 'UTF-8') ?>">
+                                        <?= htmlspecialchars($size, ENT_QUOTES, 'UTF-8') ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <option value="" disabled>Không có kích thước</option>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+                    <div class="product__details__color">
+                        <label for="color">Màu sắc:</label>
+                        <select id="color" name="color" class="form-control" onchange="updateSelectedColor()">
+                            <?php if (!empty($available_colors)): ?>
+                                <?php foreach ($available_colors as $color): ?>
+                                    <option value="<?= htmlspecialchars($color, ENT_QUOTES, 'UTF-8') ?>">
+                                        <?= htmlspecialchars($color, ENT_QUOTES, 'UTF-8') ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <option value="" disabled>Không có màu sắc</option>
+                            <?php endif; ?>
+                        </select>
+                    </div>
                     <div class="product__details__button">
                         <?php if(isset($_SESSION['user'])) {?>
                             <form action="index.php?url=gio-hang" method="post">    
@@ -141,7 +135,7 @@ if (isset($_GET['id_sp'])) {
                                     <span class="text-dark">Số lượng</span>
                                     <div class="input-next-cart d-flex mx-4"> 
                                         <input type="button" value="-" class="button-minus" data-field="quantity">
-                                        <input type="number" step="1" max="50" value="1" name="product_quantity" class="quantity-field-cart">
+                                        <input type="number" step="1" min="1" max="<?=$quantity?>" value="1" name="product_quantity" class="quantity-field-cart">
                                         <input type="button" value="+" class="button-plus" data-field="quantity">
                                     </div> 
                                     <span class="text-dark"><?=$quantity?> sản phẩm có sẵn</span>

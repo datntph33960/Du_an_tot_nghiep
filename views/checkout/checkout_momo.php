@@ -2,8 +2,13 @@
 <?php
 
 $error = array(
-    'address' => '',
+    'email' => '',
+    'fullname' => '',
+    'username' => '',
+    'password' => '',
+    'password_confirm' => '',
     'phone' => '',
+    'address' => '',     
 );
 $temp = array(
     'address' => '',
@@ -19,58 +24,57 @@ try {
         $phone = $_POST["phone"];
         $note = $_POST["note"];
 
-        // Check form
-        if (empty($address)) {
-            $error['address'] = 'Địa chỉ không được để trống';
+        // Validate các trường
+        if (empty($_SESSION['user']['full_name'])) {
+            $error['fullname'] = 'Họ tên không được để trống';
         }
 
-        if (strlen($address) > 255) {
+        if (empty($_SESSION['user']['email'])) {
+            $error['email'] = 'Email không được để trống';
+        } elseif (!filter_var($_SESSION['user']['email'], FILTER_VALIDATE_EMAIL)) {
+            $error['email'] = 'Email không đúng định dạng';
+        }
+
+        if (empty($address)) {
+            $error['address'] = 'Địa chỉ không được để trống';
+        } elseif (strlen($address) > 255) {
             $error['address'] = 'Địa chỉ tối đa 255 ký tự';
         }
 
         if (empty($phone)) {
             $error['phone'] = 'Số điện thoại không được để trống';
-        } else {
-            //Biểu thức chính quy kiểm tra định dạng sdt
-            if (!preg_match('/^(03|05|07|08|09)\d{8}$/', $phone)) {
-                $error['phone'] = 'Số điện thoại không đúng định dạng.';
-            }
+        } elseif (!preg_match('/^(03|05|07|08|09)\d{8}$/', $phone)) {
+            $error['phone'] = 'Số điện thoại không đúng định dạng.';
         }
-        // End check form
 
         // Table orderdetails
         $arr_product_id = $_POST["product_id"];
         $arr_quantity = $_POST["quantity"];
         $arr_price = $_POST["price"];
-        $arr_size = $_POST["size"]; // New size array
-        $arr_color = $_POST["color"]; // New color array
+        $arr_size = $_POST["size"];
+        $arr_color = $_POST["color"];
 
         if (empty(array_filter($error))) {
             // Thanh toán MOMO
             include_once "views/checkout/momo.php";
 
             // Sau khi thanh toán momo thành công
-            // Bước 1: Insert dữ liệu vào orders
             $OrderModel->insert_orders($user_id, $total, $address, $phone, $note);
-            // Bước 2: Lấy order_id mới tạo để thêm vào orderdetails
             $result_select = $OrderModel->select_order_id();
             $order_id = $result_select['order_id'];
 
-            // Gửi mail
             include_once "views/checkout/send-mail-order.php";
 
             if (!empty($order_id)) {
-                // Insert orderdetails
                 for ($i = 0; $i < count($arr_product_id); $i++) {
                     $product_id = $arr_product_id[$i];
                     $quantity = $arr_quantity[$i];
                     $price = $arr_price[$i];
-                    $size = $arr_size[$i]; // Get size
-                    $color = $arr_color[$i]; // Get color
+                    $size = $arr_size[$i];
+                    $color = $arr_color[$i];
 
                     $OrderModel->insert_orderdetails($order_id, $product_id, $quantity, $price, $size, $color);
                 }
-                // Sau khi đặt hàng xóa giỏ hàng
                 $OrderModel->delete_cart_by_user_id($user_id);
             }
         } else {
@@ -83,8 +87,8 @@ try {
     $error_message = $e->getMessage();
     echo $error_message;
 }
-
 ?>
+
 <?php 
 if (isset($_SESSION['user'])) { 
     $user_id = $_SESSION['user']['id'];
@@ -122,12 +126,14 @@ if (isset($_SESSION['user'])) {
                                 <div class="checkout__form__input">
                                     <p>Họ tên <span>*</span></p>
                                     <input type="text" disabled name="full_name" value="<?= $_SESSION['user']['full_name'] ?>">
+                                    <span class="text-danger error"><?=$error['fullname']?></span>
                                 </div>
                             </div>
                             <div class="col-lg-6 col-md-6 col-sm-6">
                                 <div class="checkout__form__input">
                                     <p>Email <span>*</span></p>
                                     <input disabled type="text" name="email" value="<?= $_SESSION['user']['email'] ?>">
+                                    <span class="text-danger error"><?=$error['email']?></span>
                                 </div>
                             </div>
                             <div class="col-lg-12">
@@ -171,15 +177,13 @@ if (isset($_SESSION['user'])) {
                                             $i++;
                                     ?>
                                     <li>
-                                        <!-- Thông tin insert vào orders -->
                                         <input type="hidden" name="user_id" value="<?=$user_id?>">
                                         <input type="hidden" name="total_checkout" value="<?=$totalPayment?>">
-                                        <!-- Thông tin insert vào orderdetails -->
                                         <input type="hidden" name="product_id[]" value="<?=$product_id?>">
                                         <input type="hidden" name="quantity[]" value="<?=$product_quantity?>">
                                         <input type="hidden" name="price[]" value="<?=$product_price?>">    
-                                        <input type="hidden" name="size[]" value="<?=$product_size?>"> <!-- Hidden size -->
-                                        <input type="hidden" name="color[]" value="<?=$product_color?>"> <!-- Hidden color -->
+                                        <input type="hidden" name="size[]" value="<?=$product_size?>"> 
+                                        <input type="hidden" name="color[]" value="<?=$product_color?>">
 
                                         <?=$i?>.
                                         <?=$product_name?>
@@ -207,7 +211,6 @@ if (isset($_SESSION['user'])) {
                             <button type="button" class="site-btn btn-momo" data-toggle="modal" data-target="#thanhtoan">
                                 THANH TOÁN MOMO
                             </button>
-                            <!-- Modal thanh toán-->
                             <div class="modal fade" id="thanhtoan" tabindex="-1" role="dialog" aria-labelledby="thanhtoan" aria-hidden="true">
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">

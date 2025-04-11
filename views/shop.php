@@ -111,13 +111,9 @@
                                                 <input value="<?=$price?>" type="hidden" name="price">
                                                 <input value="1" type="hidden" name="product_quantity">
                                                 <input value="<?=$image?>" type="hidden" name="image">
-
-                                                <button type="submit" name="add_to_cart" id="toastr-success-top-right">
-                                                    <a href="#" ><span class="icon_bag_alt"></span></a>
-                                                </button>
                                             </form>
                                         <?php }else{?>
-                                            <button type="submit" onclick="alert('Vui lòng dăng nhập để thực hiện chức năng');" name="add_to_cart" id="toastr-success-top-right">
+                                            <button type="submit" onclick="alert('Vui lòng đăng nhập để thực hiện chức năng');" name="add_to_cart" id="toastr-success-top-right">
                                                 <a href="dang-nhap" ><span class="icon_bag_alt"></span></a>
                                             </button>
                                         <?php }?>
