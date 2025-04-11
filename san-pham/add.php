@@ -22,6 +22,8 @@ $temp = array(
     'sale_price' => '',
     'details' => '',
     'short_description' => '',
+    'sizes' => '',
+    'colors' => '',
 );
 
 $success = '';
@@ -29,13 +31,33 @@ $success = '';
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["themsanpham"])) {
     $name = trim($_POST["name"]);
     $category_id = $_POST["category_id"];
-    $image = $_FILES["image"]['name'];
+    $category_exists = false;
 
-    $size = isset($_POST['size']) ? trim($_POST['size']) : '';
-    $color = isset($_POST['color']) ? trim($_POST['color']) : '';
+    foreach ($list_categories as $category) {
+        if ($category['category_id'] == $category_id) {
+            $category_exists = true;
+            break;
+        }
+    }
+
+    if (!$category_exists) {
+        $error['category'] = 'Danh mục không hợp lệ';
+    }
+
+    $sizes = isset($_POST['sizes']) ? implode(',', $_POST['sizes']) : '';
+    $colors = isset($_POST['colors']) ? implode(',', $_POST['colors']) : '';
+
+    // ✅ Validate size và color bắt buộc
+    if (empty($sizes)) {
+        $error['size'] = 'Vui lòng chọn ít nhất một kích thước';
+    }
+    if (empty($colors)) {
+        $error['color'] = 'Vui lòng chọn ít nhất một màu sắc';
+    }
+
     $quantity = $_POST["quantity"];
     $price = $_POST["price"];
-    $sale_price = 0; // Nếu có input thì dùng $_POST["sale_price"]
+    $sale_price = 0;
     $create_date = date('Y-m-d H:i:s');
     $status = 1;
 
@@ -64,38 +86,37 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["themsanpham"])) {
         $error['quantity'] = 'Số lượng phải lớn hơn 0';
     }
 
-    if (empty($image)) {
-        $image = "default-product.jpg";
+    $uploaded_images = [];
+    if (!empty($_FILES['images']['name'][0])) {
+        foreach ($_FILES['images']['name'] as $key => $name_file) {
+            $tmp_name = $_FILES['images']['tmp_name'][$key];
+            $target = "../upload/" . basename($name_file);
+            if (move_uploaded_file($tmp_name, $target)) {
+                $uploaded_images[] = $name_file;
+            }
+        }
     }
 
+    $image = !empty($uploaded_images) ? implode(',', $uploaded_images) : "default-product.jpg";
+
     if (empty(array_filter($error))) {
-        $target_dir = "../upload/";
-        $target_file = $target_dir . basename($_FILES["image"]["name"]);
-
-        if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
-            // Upload thành công
-        }
-
         try {
             $result = $ProductModel->insert_product(
+                $category_id,
                 $name,
                 $image,
-                $price,
-                $sale_price,
                 $quantity,
-                $create_date,
+                $price,
                 $details,
                 $short_description,
-                $status,
-                $size,
-                $color
+                $sizes,
+                $colors
             );
 
             $success = 'Thêm sản phẩm thành công';
         } catch (Exception $e) {
             $error_message = $e->getMessage();
             echo 'Thêm sản phẩm thất bại: ' . $error_message;
-
             $success = 'Thêm sản phẩm thất bại';
         }
     } else {
@@ -104,15 +125,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["themsanpham"])) {
         $temp['quantity'] = $quantity;
         $temp['short_description'] = $short_description;
         $temp['details'] = $details;
-        $temp['size'] = $size;
-        $temp['color'] = $color;
+        $temp['sizes'] = $sizes;
+        $temp['colors'] = $colors;
     }
 }
 
 $html_alert = $BaseModel->alert_error_success('', $success);
 ?>
 
-<!-- Form Start -->
 <div class="container-fluid pt-4">
     <form class="row g-4" action="" method="post" enctype="multipart/form-data">
         <div class="col-sm-12 col-xl-9">
@@ -141,28 +161,36 @@ $html_alert = $BaseModel->alert_error_success('', $success);
                     <span class="text-danger"><?= $error['quantity'] ?></span>
                 </div>
 
-                <label for="floatingInput">Kích thước (Size)</label>
+                <label for="sizes">Kích thước (Size)</label>
                 <div class="form-floating mb-3">
-                    <select name="size" class="form-select" id="floatingInput">
-                        <option value="">-- Chọn size --</option>
-                        <option value="S" <?= $temp['color'] == 'S' ? 'selected' : '' ?>>S</option>
-                        <option value="M" <?= $temp['color'] == 'M' ? 'selected' : '' ?>>M </option>
-                        <option value="L" <?= $temp['color'] == 'L' ? 'selected' : '' ?>>L </option>
-                        <option value="Xl" <?= $temp['color'] == 'Xl' ? 'selected' : '' ?>>XL </option>
+                    <select name="sizes[]" class="form-select" id="sizes" multiple>
+                        <?php 
+                        $selected_sizes = explode(',', $temp['sizes']);
+                        $available_sizes = ['S', 'M', 'L', 'XL'];
+                        foreach ($available_sizes as $size) : 
+                        ?>
+                            <option value="<?= $size ?>" <?= in_array($size, $selected_sizes) ? 'selected' : '' ?>>
+                                <?= $size ?>
+                            </option>
+                        <?php endforeach; ?>
                     </select>
+                    <span class="text-danger"><?= $error['size'] ?></span>
                 </div>
 
-                <label for="floatingInput">Màu sắc</label>
+                <label for="colors">Màu sắc</label>
                 <div class="form-floating mb-3">
-                    <select name="color" class="form-select" id="floatingInput">
-                        <option value="">-- Chọn màu sắc --</option>
-                        <option value="Đỏ" <?= $temp['color'] == 'Đỏ' ? 'selected' : '' ?>>Đỏ</option>
-                        <option value="Xanh" <?= $temp['color'] == 'Xanh' ? 'selected' : '' ?>>Xanh</option>
-                        <option value="Vàng" <?= $temp['color'] == 'Vàng' ? 'selected' : '' ?>>Vàng</option>
-                        <option value="Đen" <?= $temp['color'] == 'Đen' ? 'selected' : '' ?>>Đen</option>
-                        <option value="Trắng" <?= $temp['color'] == 'Trắng' ? 'selected' : '' ?>>Trắng</option>
-                        <option value="Hồng" <?= $temp['color'] == 'Hồng' ? 'selected' : '' ?>>Hồng</option>
+                    <select name="colors[]" class="form-select" id="colors" multiple>
+                        <?php 
+                        $selected_colors = explode(',', $temp['colors']);
+                        $available_colors = ['Đỏ', 'Xanh', 'Vàng', 'Đen', 'Trắng', 'Hồng'];
+                        foreach ($available_colors as $color) : 
+                        ?>
+                            <option value="<?= $color ?>" <?= in_array($color, $selected_colors) ? 'selected' : '' ?>>
+                                <?= $color ?>
+                            </option>
+                        <?php endforeach; ?>
                     </select>
+                    <span class="text-danger"><?= $error['color'] ?></span>
                 </div>
 
                 <label for="text-dark">Mô tả ngắn</label>
@@ -181,21 +209,27 @@ $html_alert = $BaseModel->alert_error_success('', $success);
             <div class="bg-light rounded h-100 p-4">
                 <div class="mb-3">
                     <label for="formFileSm" class="form-label">Hình ảnh (JPG, PNG, ...)</label>
-                    <input style="background-color: #fff" class="form-control form-control-sm" name="image" id="formFileSm" type="file">
-                    <div class="my-2">
-                        <img src="./img/testimonial-1.jpg" style="width: 100%;" class="img-fluid" alt="">
+                    <input style="background-color: #fff" class="form-control form-control-sm" name="images[]" id="formFileSm" type="file" multiple>
+
+                    <div id="previewCarousel" class="carousel slide my-2" data-bs-ride="carousel" style="display: none;">
+                        <div class="carousel-inner" id="carouselInner"></div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#previewCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#previewCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon"></span>
+                        </button>
                     </div>
                 </div>
 
                 <div class="form-floating mb-3">
                     <select name="category_id" class="form-select" id="floatingSelect" required>
                         <?php foreach ($list_categories as $value) : ?>
-                            <option value="<?= $value['category_id'] ?>" <?= (isset($category_id) && $category_id == $value['category_id']) ? 'selected' : '' ?>>
+                            <option value="<?= $value['category_id'] ?>" <?= (isset($category_id) && $category_id == $value['category_id']) ? 'selected' : '' ?> >
                                 <?= $value['name'] ?>
                             </option>
                         <?php endforeach ?>
                     </select>
-
                     <label for="floatingSelect">Chọn danh mục</label>
                 </div>
 
@@ -206,13 +240,39 @@ $html_alert = $BaseModel->alert_error_success('', $success);
         </div>
     </form>
 </div>
-<!-- Form End -->
+
+<script>
+    document.getElementById("formFileSm").addEventListener("change", function (event) {
+        const files = event.target.files;
+        const carouselInner = document.getElementById("carouselInner");
+        const carousel = document.getElementById("previewCarousel");
+
+        if (files.length === 0) {
+            carousel.style.display = "none";
+            return;
+        }
+
+        carouselInner.innerHTML = "";
+
+        Array.from(files).forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const div = document.createElement("div");
+                div.className = "carousel-item" + (index === 0 ? " active" : "");
+                div.innerHTML = `<img src="${e.target.result}" class="d-block w-100" alt="Ảnh ${index + 1}">`;
+                carouselInner.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+
+        carousel.style.display = "block";
+    });
+</script>
 
 <style>
     .ck-editor__editable[role="textbox"]:first-child {
         min-height: 300px;
     }
-
     .ck-content .image {
         max-width: 80%;
         margin: 20px auto;

@@ -75,7 +75,7 @@ for ($i = 1; $i <= $numberOfPages; $i++) {
     <div class="bg-light text-center rounded p-4">
         <div class="d-flex align-items-center justify-content-between mb-4">
             <h6 class="mb-0">Danh sách sản phẩm</h6>
-            <a href="them-san-pham" class="btn btn-custom"><i class="fa fa-plus"></i> Thêm sản phẩm</a>
+            <a href="index.php?quanli=them-san-pham" class="btn btn-custom"><i class="fa fa-plus"></i> Thêm sản phẩm</a>
 
         </div>
 
