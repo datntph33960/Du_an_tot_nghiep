@@ -23,11 +23,22 @@
 
     // Cập nhật trạng thái
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["update_status_order"])) {
-        $status = $_POST["status"];
+        $new_status = (int)$_POST["status"];
         $order_id = $_POST["order_id"];
-        $OrderModel->update_status_order($status, $order_id);
-        header("Location: index.php?quanli=cap-nhat-don-hang&id=$order_id");
+    
+        // Lấy trạng thái hiện tại
+        $current_order = $OrderModel->getFullOrderInformation($order_id);
+        $current_status = (int)$current_order[0]['status'];
+    
+        if ($new_status >= $current_status) {
+            $OrderModel->update_status_order($new_status, $order_id);
+            header("Location: index.php?quanli=cap-nhat-don-hang&id=$order_id");
+            exit();
+        } else {
+            echo "<script>alert('Không thể cập nhật lùi trạng thái!');</script>";
+        }
     }
+    
 
 ?>
 
@@ -51,6 +62,7 @@
                         <div class="aside"><img src="../upload/<?=$product_image?>" class="img-sm border"></div>
                         <figcaption class="info align-self-center">
                             <p class="title"><?=$product_name?> <br> </p> 
+                            <small class="text-muted">Phân loại: Size <strong><?=$sizes?></strong>, Màu <strong><?=$colors?></strong></small><br>
                             <span class="text-danger"><?=number_format($price)?>₫ </span><span>x<?=$quantity?></span>
                         </figcaption>
                     </figure>

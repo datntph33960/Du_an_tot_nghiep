@@ -113,7 +113,7 @@
                             <div class="row">
                                 <div class="col-sm-4 d-flex">
 
-                                    <a href="ho-so" class="btn btn-outline-dark btn-rounded mb-4">Sửa hồ sơ</a>
+                                    <a href="index.php?url=ho-so" class="btn btn-outline-dark btn-rounded mb-4">Sửa hồ sơ</a>
                                     <a href="index.php?url=don-hang" class="btn btn-danger btn-rounded mb-4 ml-2">Đơn mua</a>
 
 

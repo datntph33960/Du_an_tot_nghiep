@@ -61,7 +61,7 @@
 
         public function getFullOrderInformation($order_id) {
             $sql = "
-                    SELECT
+                SELECT
                     orders.order_id,
                     orders.user_id,
                     orders.date AS order_date,
@@ -76,6 +76,8 @@
                     orderdetails.product_id,
                     orderdetails.quantity,
                     orderdetails.price,
+                    orderdetails.colors,
+                    orderdetails.sizes,
                     products.name AS product_name,
                     products.image AS product_image
                 FROM
@@ -87,11 +89,11 @@
                 JOIN
                     products ON orderdetails.product_id = products.product_id
                 WHERE orders.order_id = ?
-                
             ";
-
+        
             return pdo_query($sql, $order_id);
         }
+        
 
         //Tổng doanh thu thống kê
         public function total_revenue_orders() {
