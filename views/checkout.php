@@ -1,12 +1,16 @@
 <!-- Breadcrumb Begin -->
 <?php
-    $success = '';
-    $error = '';
+$success = '';
+$error = '';
+
 try {    
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["checkout"])) {
         // Table orders
         $user_id = $_POST["user_id"];
-        $total = $_POST["total_checkout"];
+        $subtotal = $_POST["total_checkout"]; // tổng tiền hàng
+        $shipping_fee = $_POST["shipping_fee"]; // phí vận chuyển
+        $total = $subtotal + $shipping_fee; // tổng tiền thanh toán
+
         $address = $_POST["address"];
         $phone = $_POST["phone"];
         $note = $_POST["note"];
@@ -18,37 +22,39 @@ try {
         $arr_size = $_POST["size"];
         $arr_color = $_POST["color"];
 
-        // Bước 1: Insert dữ liệu vào orders
-        $OrderModel->insert_orders($user_id, $total, $address, $phone, $note);
-        // Bước 2: Lấy order_id mới tạo để thểm vào 
+        // Bước 1: Insert dữ liệu vào orders (phải chắc chắn hàm này có tham số shipping_fee)
+        $OrderModel->insert_orders($user_id, $total, $address, $phone, $note, $shipping_fee);
+
+        // Bước 2: Lấy order_id mới tạo
         $result_select = $OrderModel->select_order_id();
         $order_id = $result_select['order_id'];
 
-        if(!empty($order_id)) {
+        if (!empty($order_id)) {
             // Insert orderdetails
             for ($i = 0; $i < count($arr_product_id); $i++) {
                 $product_id = $arr_product_id[$i];
                 $quantity = $arr_quantity[$i];
                 $price = $arr_price[$i];
-                $size = $arr_size[$i];
-                $olor = $arr_color[$i];
-    
-                $OrderModel->insert_orderdetails($order_id, $product_id, $quantity, $price,$size,$color);
+                $sizes = $arr_size[$i];
+                $colors = $arr_color[$i];
+
+                $OrderModel->insert_orderdetails($order_id, $product_id, $quantity, $price, $sizes, $colors);
             }
+
             // Sau khi đặt hàng xóa giỏ hàng
             $OrderModel->delete_cart_by_user_id($user_id);
-            header("Location: cam-on");
-        }
-        
 
+            // Điều hướng về trang cảm ơn
+            header("Location: index.php?url=cam-on");
+            exit();
+        }
     }
 } catch (Exception $e) {
     $error_message = $e->getMessage();
     echo $error_message;
 }
-
-
 ?>
+
 <?php 
     if(isset($_SESSION['user'])) { 
         $user_id = $_SESSION['user']['id'];
@@ -74,7 +80,7 @@ try {
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
-                    <h6 class="coupon__link"><span class="icon_tag_alt mr-1"></span>Tiến hành thanh toán đơn hàng <a class="text-primary" href="gio-hang">Trở lại giỏ hàng</a> </h6>
+                    <h6 class="coupon__link"><span class="icon_tag_alt mr-1"></span>Tiến hành thanh toán đơn hàng <a class="text-primary" href="index.php?url=gio-hang">Trở lại giỏ hàng</a> </h6>
                 </div>
             </div>
             <form action="" method="post" class="checkout__form">
@@ -160,32 +166,48 @@ try {
                                         <input type="hidden" name="product_id[]" value="<?=$product_id?>">
                                         <input type="hidden" name="quantity[]" value="<?=$product_quantity?>">
                                         <input type="hidden" name="price[]" value="<?=$product_price?>">    
-                                        <input type="hidden" name="price[]" value="<?=$product_size?>">    
-                                        <input type="hidden" name="price[]" value="<?=$product_color?>">    
+                                       <input type="hidden" name="size[]" value="<?= htmlspecialchars($product_size) ?>"> <!-- Lưu kích thước -->
+                                        <input type="hidden" name="color[]" value="<?= htmlspecialchars($product_color) ?>">   
+                                        <input type="hidden" id="base_total" value="<?= $totalPayment ?>">
+<input type="hidden" id="shipping_fee_hidden" name="shipping_fee" value="20000">
+<input type="hidden" name="total_checkout" id="total_checkout_hidden" value="<?= $totalPayment + 20000 ?>">
+
+
 
                                         <?=$i?>.
                                         <?=$product_name?>
                                         <a class="text-primary">x<?=$product_quantity?></a>
                                         <span><?=number_format($totalPrice)?>đ</span>
+                                        <span class="text-muted">(Kích thước: <?= htmlspecialchars($product_size) ?>, Màu sắc: <?= htmlspecialchars($product_color) ?>)</span>
                                     </li>
                                     <?php
                                         }
                                     ?>
                                 </ul>
                             </div>
-                            <div class="checkout__order__total">
-                                <ul>
-                                   
-                                    <li>Tổng <span><?=number_format($totalPayment)?>đ</span></li>
-                                </ul>
-                            </div>
-                            <!-- <div class="checkout__order__widget">
+                            <div class="checkout__order__shipping mb-3">
+    <label for="shipping_fee" class="font-weight-bold mb-2">Chọn hình thức giao hàng:</label>
+    <select name="shipping_fee" id="shipping_fee" class="form-control" required>
+        <option value="20000">Giao hàng tiêu chuẩn - 20.000đ</option>
+        <option value="40000">Giao hàng nhanh - 40.000đ</option>
+    </select>
+</div>
+
+<!-- Tổng cộng -->
+<div class="checkout__order__total">
+    <ul>
+        <li>
+            Tổng cộng: <span id="total_with_shipping"><?= number_format($totalPayment + 20000) ?>đ</span>
+        </li>
+    </ul>
+</div>
+                            <div class="checkout__order__widget">
                                 <label for="paypal">
                                     Thanh toán khi nhận hàng
                                     <input type="checkbox" id="paypal">
                                     <span class="checkmark"></span>
                                 </label>
-                            </div> -->
+                            </div>
                             <?php if($count_cart > 0) {?>
                             <div class="checkout__order__widget text-center text-dark mb-2">                        
                                  Thanh toán khi nhận hàng
@@ -216,7 +238,7 @@ try {
                             <div class="checkout__order__widget text-center text-primary mb-2">                        
                                 Chưa có sản phẩm trong giỏ hàng
                             </div> 
-                            <a href="cua-hang" class="site-btn btn">Xem sản phẩm</a>
+                            <a href="index.php?url=cua-hang" class="site-btn btn">Xem sản phẩm</a>
                             <?php }?>
                         </div>
                     </div>
@@ -257,3 +279,24 @@ try {
         border: 1px solid #999999;
     }
 </style>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const shippingSelect = document.getElementById("shipping_fee");
+        const baseTotal = parseInt(document.getElementById("base_total").value);
+        const totalWithShipping = document.getElementById("total_with_shipping");
+        const shippingHidden = document.getElementById("shipping_fee_hidden");
+        const totalHidden = document.getElementById("total_checkout_hidden");
+
+        shippingSelect.addEventListener("change", function () {
+            const shippingFee = parseInt(this.value);
+            const newTotal = baseTotal + shippingFee;
+
+            // Cập nhật text hiển thị
+            totalWithShipping.textContent = newTotal.toLocaleString("vi-VN") + "đ";
+
+            // Cập nhật các input hidden
+            shippingHidden.value = shippingFee;
+            totalHidden.value = newTotal;
+        });
+    });
+</script>
