@@ -1,261 +1,232 @@
-<!-- Breadcrumb Begin -->
 <?php
-    $success = '';
-    $error = '';
-try {    
+$success = '';
+$error = '';
+
+try {
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["checkout"])) {
-        // Table orders
-        $user_id = $_POST["user_id"];
-        $total = $_POST["total_checkout"];
+        require_once __DIR__ . '/../config/config.php';
+        $pdo = pdo_get_connection();
+
+        // Lấy dữ liệu người dùng từ session
+        if (!isset($_SESSION['user'])) throw new Exception("Bạn chưa đăng nhập.");
+        $user_id = $_SESSION['user']['id'];
+
+        // Dữ liệu đơn hàng
         $address = $_POST["address"];
         $phone = $_POST["phone"];
         $note = $_POST["note"];
+        $voucher_discount = isset($_POST['voucher_discount']) ? (int)$_POST['voucher_discount'] : 0;
 
-        // Table orderdetails
+        // Dữ liệu sản phẩm
         $arr_product_id = $_POST["product_id"];
         $arr_quantity = $_POST["quantity"];
         $arr_price = $_POST["price"];
-        $arr_size = $_POST["size"];
-        $arr_color = $_POST["color"];
+        $arr_sizes = $_POST["sizes"];
+        $arr_colors = $_POST["colors"];
 
-        // Bước 1: Insert dữ liệu vào orders
-        $OrderModel->insert_orders($user_id, $total, $address, $phone, $note);
-        // Bước 2: Lấy order_id mới tạo để thểm vào 
-        $result_select = $OrderModel->select_order_id();
-        $order_id = $result_select['order_id'];
-
-        if(!empty($order_id)) {
-            // Insert orderdetails
-            for ($i = 0; $i < count($arr_product_id); $i++) {
-                $product_id = $arr_product_id[$i];
-                $quantity = $arr_quantity[$i];
-                $price = $arr_price[$i];
-                $sizes = $arr_size[$i];
-                $colors = $arr_color[$i];
-    
-                $OrderModel->insert_orderdetails($order_id, $product_id, $quantity, $price,$sizes,$colors);
-            }
-            // Sau khi đặt hàng xóa giỏ hàng
-            $OrderModel->delete_cart_by_user_id($user_id);
-            header("Location: index.php?url=cam-on");
+        // Tính tổng
+        $total = 0;
+        for ($i = 0; $i < count($arr_product_id); $i++) {
+            $total += ($arr_price[$i] * $arr_quantity[$i]);
         }
-        
+        $total = max(0, $total - $voucher_discount);
 
+        // Bắt đầu transaction
+        $pdo->beginTransaction();
+
+        // Bước 1: Insert vào orders
+        $stmt = $pdo->prepare("INSERT INTO orders (user_id, total, address, phone, note) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$user_id, $total, $address, $phone, $note]);
+
+        $order_id = $pdo->lastInsertId();
+        if (!$order_id) throw new Exception("Không thể tạo đơn hàng.");
+
+        // Bước 2: Insert từng chi tiết đơn hàng
+        $stmtDetail = $pdo->prepare("INSERT INTO orderdetails (order_id, product_id, quantity, price, sizes, colors) VALUES (?, ?, ?, ?, ?, ?)");
+        for ($i = 0; $i < count($arr_product_id); $i++) {
+            $stmtDetail->execute([
+                $order_id,
+                $arr_product_id[$i],
+                $arr_quantity[$i],
+                $arr_price[$i],
+                $arr_sizes[$i],
+                $arr_colors[$i]
+            ]);
+        }
+
+        // Xóa giỏ hàng
+        $stmt = $pdo->prepare("DELETE FROM carts WHERE user_id = ?");
+        $stmt->execute([$user_id]);
+
+        $pdo->commit();
+        header("Location: index.php?url=cam-on");
+        exit;
     }
 } catch (Exception $e) {
-    $error_message = $e->getMessage();
-    echo $error_message;
+    if (isset($pdo)) $pdo->rollBack();
+    $error = "Đã xảy ra lỗi khi xử lý đơn hàng: " . htmlspecialchars($e->getMessage());
 }
-
-
 ?>
-<?php 
-    if(isset($_SESSION['user'])) { 
-        $user_id = $_SESSION['user']['id'];
-        $list_carts = $CartModel->select_all_carts($user_id);
-        $count_cart = count($CartModel->count_cart($user_id));
-    ?>
-    <div class="breadcrumb-option">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="breadcrumb__links">
-                        <a href="index.php"><i class="fa fa-home"></i> Trang chủ</a>
-                        <span>Thanh toán</span>
-                    </div>
-                </div>
-            </div>
+
+<!-- Giao diện thanh toán -->
+<?php if(isset($_SESSION['user'])):
+    $user_id = $_SESSION['user']['id'];
+    $list_carts = $CartModel->select_all_carts($user_id);
+    $count_cart = count($CartModel->count_cart($user_id));
+    $totalPayment = 0;
+    foreach ($list_carts as $item) {
+        $totalPayment += $item['product_price'] * $item['product_quantity'];
+    }
+?>
+<div class="breadcrumb-option">
+    <div class="container"><div class="row"><div class="col-lg-12">
+        <div class="breadcrumb__links">
+            <a href="index.php"><i class="fa fa-home"></i> Trang chủ</a>
+            <span>Thanh toán</span>
         </div>
-    </div>
-    <!-- Breadcrumb End -->
+    </div></div></div>
+</div>
 
-    <!-- Checkout Section Begin -->
-    <section class="checkout spad">
-        <div class="container">
+<section class="checkout spad">
+    <div class="container">
+        <form method="post" class="checkout__form">
+            <?php if($error): ?>
+                <div class="alert alert-danger"><?= $error ?></div>
+            <?php endif; ?>
             <div class="row">
-                <div class="col-lg-12">
-                    <h6 class="coupon__link"><span class="icon_tag_alt mr-1"></span>Tiến hành thanh toán đơn hàng <a class="text-primary" href="index.php?url=gio-hang">Trở lại giỏ hàng</a> </h6>
-                </div>
-            </div>
-            <form action="" method="post" class="checkout__form">
-                <?php
-                    if($success != '') {
-                        $alert = $BaseModel->alert_error_success($error, $success);
-                        echo $alert;
-                    }
-                ?>
-                <div class="row">
-                    <div class="col-lg-8">
-                        <h5>CHI TIẾT THANH TOÁN</h5>
-                        <div class="row">
-                            <div class="col-lg-6 col-md-6 col-sm-6">
-                                <div class="checkout__form__input">
-                                    <p>Họ tên <span>*</span></p>
-                                    <input type="text" disabled name="full_name" value="<?= $_SESSION['user']['full_name'] ?>">
-                                </div>
+                <div class="col-lg-8">
+                    <h5>CHI TIẾT THANH TOÁN</h5>
+                    <div class="row">
+                        <!-- Họ tên -->
+                        <div class="col-lg-6">
+                            <div class="checkout__form__input">
+                                <p>Họ tên <span>*</span></p>
+                                <input type="text" disabled value="<?= $_SESSION['user']['full_name'] ?>">
                             </div>
-                            <div class="col-lg-6 col-md-6 col-sm-6">
-                                <div class="checkout__form__input">
-                                    <p>Email <span>*</span></p>
-                                    <input disabled type="text" value="<?= $_SESSION['user']['email'] ?>">
-                                </div>
-                            </div>
-                            <div class="col-lg-12">
-
-                                <div class="checkout__form__input">
-                                    <p>Địa chỉ <span>*</span></p>
-                                    <input disabled type="text" value="<?= $_SESSION['user']['address'] ?>">
-
-                                </div>
-
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="checkout__form__input">
-                                    <p>Số điện thoại <span>*</span></p>
-                                    <input disabled type="text" name="phone" value="<?= $_SESSION['user']['phone'] ?>">
-                                </div>
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="checkout__form__input">
-                                    <p>Ghi chú<span></span></p>
-                                    <input type="text" name="note">
-                                </div>
-                            </div>
-                            <div class="col-lg-12">
-                                <p style="color: #000000; font-weight:500; font-size: 15px;">Bạn có thể sử dụng địa chỉ mặc định khi đăng ký, hoặc nhập nhập địa chỉ khác</p>
-                            </div>
-                            <div class="col-lg-5">
-                                <div class="cart__btn">
-                                    <a href="index.php?url=thanh-toan-2">Nhập địa chỉ mới</a>
-                                </div>
-                            </div>
-
                         </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="checkout__order">
-                            <h5>ĐƠN HÀNG</h5>
-                            <div class="checkout__order__product">
-                                <ul>
-                                    <li>
-                                        <span class="top__text">Sản phẩm</span>
-                                        <span class="top__text__right">Tổng</span>
-                                    </li>
-                                    <?php
-                                        $i = 0;
-                                        $totalPayment = 0;
-                                        foreach ($list_carts as $value) {
-                                        extract($value);
-                                        $totalPrice = ($product_price * $product_quantity);
-                                        $totalPayment += $totalPrice;
-                                        $i++;
-                                    ?>
-                                    <li>
-                                        <!-- Thông tin insert vào orders -->
-                                        <input type="hidden" name="user_id" value="<?=$user_id?>">
-                                        <input type="hidden" name="address" value="<?=$_SESSION['user']['address']?>">
-                                        <input type="hidden" name="phone" value="<?=$_SESSION['user']['phone']?>">
-                                        <input type="hidden" name="total_checkout" value="<?=$totalPayment?>">
-                                        <!-- Thông tin insert vào orderdetails -->
-                                        <input type="hidden" name="product_id[]" value="<?=$product_id?>">
-                                        <input type="hidden" name="quantity[]" value="<?=$product_quantity?>">
-                                        <input type="hidden" name="price[]" value="<?=$product_price?>">    
-                                       <input type="hidden" name="size[]" value="<?= htmlspecialchars($product_size) ?>"> <!-- Lưu kích thước -->
-                                        <input type="hidden" name="color[]" value="<?= htmlspecialchars($product_color) ?>">   
-   
-
-                                        <?=$i?>.
-                                        <?=$product_name?>
-                                        <a class="text-primary">x<?=$product_quantity?></a>
-                                        <span><?=number_format($totalPrice)?>đ</span>
-                                        <span class="text-muted">(Kích thước: <?= htmlspecialchars($product_size) ?>, Màu sắc: <?= htmlspecialchars($product_color) ?>)</span>
-                                    </li>
-                                    <?php
-                                        }
-                                    ?>
-                                </ul>
+                        <!-- Email -->
+                        <div class="col-lg-6">
+                            <div class="checkout__form__input">
+                                <p>Email <span>*</span></p>
+                                <input type="text" disabled value="<?= $_SESSION['user']['email'] ?>">
                             </div>
-                            <div class="checkout__order__total">
-                                <ul>
-                                   
-                                    <li>Tổng <span><?=number_format($totalPayment)?>đ</span></li>
-                                </ul>
+                        </div>
+                        <!-- Địa chỉ -->
+                        <div class="col-lg-12">
+                            <div class="checkout__form__input">
+                                <p>Địa chỉ <span>*</span></p>
+                                <input type="text" name="address" value="<?= $_SESSION['user']['address'] ?>">
                             </div>
-                            <div class="checkout__order__widget">
-                                <label for="paypal">
-                                    Thanh toán khi nhận hàng
-                                    <input type="checkbox" id="paypal">
-                                    <span class="checkmark"></span>
-                                </label>
+                        </div>
+                        <!-- Số điện thoại -->
+                        <div class="col-lg-12">
+                            <div class="checkout__form__input">
+                                <p>Số điện thoại <span>*</span></p>
+                                <input type="text" name="phone" value="<?= $_SESSION['user']['phone'] ?>">
                             </div>
-                            <?php if($count_cart > 0) {?>
-                            <div class="checkout__order__widget text-center text-dark mb-2">                        
-                                 Thanh toán khi nhận hàng
-                            </div>   
-                            <button type="button" class="site-btn" data-toggle="modal" data-target="#thanh-toan-1">
-                                ĐẶT HÀNG
-                            </button>
-                            <!-- Modal thanh toán-->
-                            <div class="modal fade" id="thanh-toan-1" tabindex="-1" role="dialog" aria-labelledby="thanh-toan-1" aria-hidden="true">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h4>Xác nhận đặt hàng</h4>
-                                    </div>
-                                    <div class="modal-body text-dark">
-                                        Bạn có muốn tiếp tục đặt hàng ?
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
-                                        <button type="submit" name="checkout"  class="btn btn-primary">Xác nhận</button>
-                                    </div>
-                                    </div>
-                                </div>
+                        </div>
+                        <!-- Ghi chú -->
+                        <div class="col-lg-12">
+                            <div class="checkout__form__input">
+                                <p>Ghi chú</p>
+                                <input type="text" name="note">
                             </div>
-
-
-                            <?php }else {?>
-                            <div class="checkout__order__widget text-center text-primary mb-2">                        
-                                Chưa có sản phẩm trong giỏ hàng
-                            </div> 
-                            <a href="index.php?url=cua-hang" class="site-btn btn">Xem sản phẩm</a>
-                            <?php }?>
                         </div>
                     </div>
                 </div>
-            </form>
-        </div>
-    </section>
-    <!-- Checkout Section End -->
-<?php } else { ?>
-    <div class="row" style="margin-bottom: 400px;">
-        <div class="col-lg-12 col-md-12">
-            <div class="container-fluid mt-5">
-                <div class="row rounded justify-content-center mx-0 pt-5">
-                    <div class="col-md-6 text-center">
-                        <h4 class="mb-4">Vui lòng đăng nhập để có thể thanh toán</h4>
-                        <a class="btn btn-primary rounded-pill py-3 px-5" href="index.php?url=dang-nhap">Đăng nhập</a>
-                        <a class="btn btn-secondary rounded-pill py-3 px-5" href="index.php">Trang chủ</a>
+                <!-- Bảng đơn hàng -->
+                <div class="col-lg-4">
+                    <div class="checkout__order">
+                        <h5>ĐƠN HÀNG</h5>
+                        <div class="checkout__order__product">
+                            <ul>
+                                <li><span class="top__text">Sản phẩm</span><span class="top__text__right">Tổng</span></li>
+                                <?php foreach($list_carts as $i => $item): ?>
+                                    <li>
+                                        <input type="hidden" name="product_id[]" value="<?= $item['product_id'] ?>">
+                                        <input type="hidden" name="quantity[]" value="<?= $item['product_quantity'] ?>">
+                                        <input type="hidden" name="price[]" value="<?= $item['product_price'] ?>">
+                                        <input type="hidden" name="sizes[]" value="<?= htmlspecialchars($item['product_size']) ?>">
+                                        <input type="hidden" name="colors[]" value="<?= htmlspecialchars($item['product_color']) ?>">
+
+                                        <?= $i + 1 ?>. <?= $item['product_name'] ?>
+                                        <a class="text-primary">x<?= $item['product_quantity'] ?></a>
+                                        <span><?= number_format($item['product_price'] * $item['product_quantity']) ?>đ</span>
+                                        <span class="text-muted">(Kích thước: <?= htmlspecialchars($item['product_size']) ?>, Màu sắc: <?= htmlspecialchars($item['product_color']) ?>)</span>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+
+                        <!-- Mã giảm giá -->
+                        <div class="checkout__form__input">
+                            <p>Mã giảm giá</p>
+                            <div class="d-flex">
+                                <input type="text" id="voucher_code" class="form-control mr-2" placeholder="Nhập mã">
+                                <button type="button" class="btn btn-sm btn-primary" onclick="applyVoucher()">Áp dụng</button>
+                            </div>
+                            <small id="voucher_message" class="text-success mt-1"></small>
+                            <input type="hidden" name="voucher_discount" id="voucher_discount" value="0">
+                        </div>
+
+                        <div class="checkout__order__total">
+                            <ul>
+                                <li>Giảm giá <span id="discount_amount">0đ</span></li>
+                                <li>Thành tiền <span id="final_amount"><?= number_format($totalPayment) ?>đ</span></li>
+                                <input type="hidden" name="total_checkout" value="<?= $totalPayment ?>">
+                            </ul>
+                        </div>
+
+                        <!-- Nút đặt hàng -->
+                        <div class="checkout__order__widget text-center text-dark mb-2">Thanh toán khi nhận hàng</div>
+                        <?php if($count_cart > 0): ?>
+                            <button type="submit" name="checkout" class="site-btn">ĐẶT HÀNG</button>
+                        <?php else: ?>
+                            <div class="text-primary text-center mb-2">Chưa có sản phẩm trong giỏ</div>
+                            <a href="index.php?url=cua-hang" class="site-btn">Xem sản phẩm</a>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
-<?php } ?>
+</section>
 
+<script>
+function applyVoucher() {
+    const code = document.getElementById('voucher_code').value.trim().toUpperCase();
+    const total = <?= $totalPayment ?>;
+    let discount = 0;
+    const vouchers = {
+        'GIAM10': { type: 'percent', value: 10 },
+        'GIAM50K': { type: 'amount', value: 50000 },
+    };
 
-<style>
-    .cart__btn a:hover {
-        background-color: #0A68FF;
-        color: #fff;
-        transition: 0.2s;
+    let message = '';
+    if (vouchers[code]) {
+        const v = vouchers[code];
+        discount = (v.type === 'percent') ? Math.floor(total * v.value / 100) : v.value;
+        message = `Áp dụng mã ${code} - Giảm ${discount.toLocaleString()}đ`;
+    } else {
+        message = 'Mã không hợp lệ hoặc đã hết hạn.';
     }
 
-    .checkout__form .checkout__form__input input {
-        color: #000000;
-    }
+    const finalTotal = Math.max(0, total - discount);
+    document.getElementById('voucher_discount').value = discount;
+    document.querySelector('input[name="total_checkout"]').value = finalTotal;
+    document.getElementById('discount_amount').textContent = '-' + discount.toLocaleString() + 'đ';
+    document.getElementById('final_amount').textContent = finalTotal.toLocaleString() + 'đ';
+    document.getElementById('voucher_message').textContent = message;
+}
+</script>
 
-    .checkout__form .checkout__form__input input:focus {
-        border: 1px solid #999999;
-    }
-</style>
+<?php else: ?>
+<!-- Nếu chưa đăng nhập -->
+<div class="container mt-5">
+    <div class="text-center">
+        <h4>Bạn cần đăng nhập để thanh toán</h4>
+        <a href="index.php?url=dang-nhap" class="btn btn-primary">Đăng nhập</a>
+        <a href="index.php" class="btn btn-secondary">Trang chủ</a>
+    </div>
+</div>
+<?php endif; ?>
