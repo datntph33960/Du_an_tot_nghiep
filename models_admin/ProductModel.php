@@ -1,13 +1,14 @@
 <?php
     class ProductModel {
-        public function insert_product($category_id, $name, $image, $quantity, $price, $details, $short_description) {
-           
-           $sql = "INSERT INTO products 
-           (category_id, name, image, quantity, price, details, short_description)
-            VALUES (?,?,?,?,?,?,?)";
-
-            pdo_execute($sql, $category_id, $name, $image, $quantity, $price, $details, $short_description);
+        public function insert_product($category_id, $name, $image, $quantity, $price, $details, $short_description, $sizes, $colors) {
+            $sql = "INSERT INTO products 
+                    (category_id, name, image, quantity, price, details, short_description, sizes, colors)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        
+            // Gọi pdo_execute với các tham số
+            pdo_execute($sql, $category_id, $name, $image, $quantity, $price, $details, $short_description, $sizes, $colors);
         }
+        
 
         public function select_products() {
             $sql = "SELECT name FROM products WHERE status = 1";
@@ -83,25 +84,63 @@
             pdo_execute($sql, $product_id);
         }
 
-        public function update_product($category_id, $name, $image, $quantity, $price, $details, $short_description, $product_id) {
+        public function update_product($category_id, $name, $image, $quantity, $price, $details, $short_description, $sizes, $colors, $product_id) {
             $sql = "UPDATE products SET 
-            category_id = '".$category_id."', 
-            name = '".$name."',";
-    
-            if ($image != '') {
-                $sql .= " image = '".$image."',";
+                    category_id = ?, 
+                    name = ?, 
+                    image = ?, 
+                    quantity = ?, 
+                    price = ?, 
+                    details = ?, 
+                    short_description = ?, 
+                    sizes = ?, 
+                    colors = ? 
+                    WHERE product_id = ?";
+            
+            pdo_execute($sql, $category_id, $name, $image, $quantity, $price, $details, $short_description, $sizes, $colors, $product_id);
+        }
+        public function select_sizes() {
+            $sql = "SELECT DISTINCT sizes FROM products WHERE sizes IS NOT NULL AND sizes != ''";
+            $result = pdo_query($sql);
+            $allSizes = [];
+            foreach ($result as $row) {
+                $sizes = explode(',', $row['sizes']);
+                $allSizes = array_merge($allSizes, $sizes);
+            }
+            $uniqueSizes = array_unique(array_map('trim', $allSizes));
+            sort($uniqueSizes);
+            return $uniqueSizes;
+        }
+        public function select_colors() {
+            $sql = "SELECT DISTINCT colors FROM products WHERE colors IS NOT NULL AND colors != ''";
+            $result = pdo_query($sql);
+            $allColors = [];
+            foreach ($result as $row) {
+                $colors = explode(',', $row['colors']);
+                $allColors = array_merge($allColors, $colors);
             }
 
-            $sql .= " quantity = '".$quantity."', 
-                    price = '".$price."', 
-                    
-                    details = '".$details."', 
-                    short_description = '".$short_description."' 
-                    WHERE product_id = ".$product_id;
-            
-            
-            pdo_execute($sql);
+            $uniqueColors = array_unique(array_map('trim', $allColors));
+            sort($uniqueColors);
+            return $uniqueColors;
         }
+        public function get_product_sizes($product_id) {
+            $sql = "SELECT sizes FROM products WHERE product_id = ?";
+            $result = pdo_query_one($sql, $product_id);
+            if ($result && !empty($result['sizes'])) {
+                return array_map('trim', explode(',', $result['sizes']));
+            }
+            return [];
+        }
+        public function get_product_colors($product_id) {
+            $sql = "SELECT colors FROM products WHERE product_id = ?";
+            $result = pdo_query_one($sql, $product_id);
+            if ($result && !empty($result['colors'])) {
+                return array_map('trim', explode(',', $result['colors']));
+            }
+            return [];
+        }
+
     }
 
     $ProductModel = new ProductModel();
