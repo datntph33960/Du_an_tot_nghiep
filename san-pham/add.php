@@ -47,7 +47,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["themsanpham"])) {
     $sizes = isset($_POST['sizes']) ? implode(',', $_POST['sizes']) : '';
     $colors = isset($_POST['colors']) ? implode(',', $_POST['colors']) : '';
 
-    // ✅ Validate size và color bắt buộc
     if (empty($sizes)) {
         $error['size'] = 'Vui lòng chọn ít nhất một kích thước';
     }
@@ -161,36 +160,46 @@ $html_alert = $BaseModel->alert_error_success('', $success);
                     <span class="text-danger"><?= $error['quantity'] ?></span>
                 </div>
 
-                <label for="sizes">Kích thước (Size)</label>
-                <div class="form-floating mb-3">
-                    <select name="sizes[]" class="form-select" id="sizes" multiple>
-                        <?php 
-                        $selected_sizes = explode(',', $temp['sizes']);
-                        $available_sizes = ['S', 'M', 'L', 'XL'];
-                        foreach ($available_sizes as $size) : 
-                        ?>
-                            <option value="<?= $size ?>" <?= in_array($size, $selected_sizes) ? 'selected' : '' ?>>
-                                <?= $size ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <span class="text-danger"><?= $error['size'] ?></span>
+                <label>Kích thước</label>
+                <div class="mb-3" id="size-container">
+                    <?php 
+                    $selected_sizes = explode(',', $temp['sizes']);
+                    $available_sizes = ['S', 'M', 'L', 'XL'];
+                    $all_sizes = array_unique(array_merge($available_sizes, $selected_sizes));
+                    foreach ($all_sizes as $size) : 
+                        $safe_id = preg_replace('/\W+/', '', strtolower($size));
+                    ?>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" name="sizes[]" value="<?= $size ?>" id="size_<?= $safe_id ?>" <?= in_array($size, $selected_sizes) ? 'checked' : '' ?>>
+                        <label class="form-check-label" for="size_<?= $safe_id ?>"><?= $size ?></label>
+                    </div>
+                    <?php endforeach; ?>
                 </div>
+                <div class="input-group mb-3">
+                    <input type="text" id="newSizeInput" class="form-control" placeholder="Nhập size mới">
+                    <button class="btn btn-outline-primary" type="button" onclick="addNewSize()">Thêm size</button>
+                </div>
+                <div><span class="text-danger"><?= $error['size'] ?></span></div>
 
-                <label for="colors">Màu sắc</label>
-                <div class="form-floating mb-3">
-                    <select name="colors[]" class="form-select" id="colors" multiple>
-                        <?php 
-                        $selected_colors = explode(',', $temp['colors']);
-                        $available_colors = ['Đỏ', 'Xanh', 'Vàng', 'Đen', 'Trắng', 'Hồng'];
-                        foreach ($available_colors as $color) : 
-                        ?>
-                            <option value="<?= $color ?>" <?= in_array($color, $selected_colors) ? 'selected' : '' ?>>
-                                <?= $color ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <span class="text-danger"><?= $error['color'] ?></span>
+                <label>Màu sắc</label>
+                <div class="mb-3" id="color-container">
+                    <?php 
+                    $selected_colors = explode(',', $temp['colors']);
+                    $available_colors = ['Đỏ', 'Xanh', 'Vàng', 'Đen', 'Trắng', 'Hồng'];
+                    $all_colors = array_unique(array_merge($available_colors, $selected_colors));
+                    foreach ($all_colors as $color) : 
+                        $color_slug = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $color));
+                    ?>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" name="colors[]" value="<?= $color ?>" id="color_<?= $color_slug ?>" <?= in_array($color, $selected_colors) ? 'checked' : '' ?>>
+                        <label class="form-check-label" for="color_<?= $color_slug ?>"><?= $color ?></label>
+                    </div>
+                    <?php endforeach; ?>
+                    <div><span class="text-danger"><?= $error['color'] ?></span></div>
+                </div>
+                <div class="input-group mb-3">
+                    <input type="text" id="newColorInput" class="form-control" placeholder="Nhập màu mới">
+                    <button class="btn btn-outline-primary" type="button" onclick="addNewColor()">Thêm màu</button>
                 </div>
 
                 <label for="text-dark">Mô tả ngắn</label>
@@ -225,9 +234,9 @@ $html_alert = $BaseModel->alert_error_success('', $success);
                 <div class="form-floating mb-3">
                     <select name="category_id" class="form-select" id="floatingSelect" required>
                         <?php foreach ($list_categories as $value) : ?>
-                            <option value="<?= $value['category_id'] ?>" <?= (isset($category_id) && $category_id == $value['category_id']) ? 'selected' : '' ?> >
-                                <?= $value['name'] ?>
-                            </option>
+                        <option value="<?= $value['category_id'] ?>" <?= (isset($category_id) && $category_id == $value['category_id']) ? 'selected' : '' ?> >
+                            <?= $value['name'] ?>
+                        </option>
                         <?php endforeach ?>
                     </select>
                     <label for="floatingSelect">Chọn danh mục</label>
@@ -242,6 +251,54 @@ $html_alert = $BaseModel->alert_error_success('', $success);
 </div>
 
 <script>
+    function addNewSize() {
+        const input = document.getElementById('newSizeInput');
+        const value = input.value.trim();
+        const container = document.getElementById('size-container');
+
+        if (value === '') return;
+
+        const safeId = value.replace(/\W+/g, '').toLowerCase();
+
+        if (document.getElementById('size_' + safeId)) {
+            alert('Size này đã tồn tại!');
+            return;
+        }
+
+        const div = document.createElement('div');
+        div.className = 'form-check form-check-inline';
+        div.innerHTML = `
+            <input class="form-check-input" type="checkbox" name="sizes[]" value="${value}" id="size_${safeId}" checked>
+            <label class="form-check-label" for="size_${safeId}">${value}</label>
+        `;
+        container.appendChild(div);
+        input.value = '';
+    }
+
+    function addNewColor() {
+        const input = document.getElementById('newColorInput');
+        const value = input.value.trim();
+        const container = document.getElementById('color-container');
+
+        if (value === '') return;
+
+        const safeId = value.replace(/\W+/g, '').toLowerCase();
+
+        if (document.getElementById('color_' + safeId)) {
+            alert('Màu này đã tồn tại!');
+            return;
+        }
+
+        const div = document.createElement('div');
+        div.className = 'form-check form-check-inline';
+        div.innerHTML = `
+            <input class="form-check-input" type="checkbox" name="colors[]" value="${value}" id="color_${safeId}" checked>
+            <label class="form-check-label" for="color_${safeId}">${value}</label>
+        `;
+        container.appendChild(div);
+        input.value = '';
+    }
+
     document.getElementById("formFileSm").addEventListener("change", function (event) {
         const files = event.target.files;
         const carouselInner = document.getElementById("carouselInner");
