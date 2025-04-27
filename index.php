@@ -64,6 +64,9 @@
             case 'chi-tiet-don-hang':    
                 require_once "views/my-orderdetails.php";
                 break; 
+            case 'voucher':
+                require_once "views/voucher.php";
+                break;
             // User
             case 'dang-nhap':    
                 require_once "views/user/login.php";

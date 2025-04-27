@@ -1,20 +1,14 @@
 <!-- Breadcrumb Begin -->
 <?php
-
-$error = array(
-    'email' => '',
-    'fullname' => '',
-    'username' => '',
-    'password' => '',
-    'password_confirm' => '',
+$error = [
+    'address' => '',
     'phone' => '',
-    'address' => '',     
-);
-$temp = array(
+];
+$temp = [
     'address' => '',
     'phone' => '',
     'note' => '',
-);
+];
 try {
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["payUrl"])) {
         // Table orders
@@ -24,27 +18,19 @@ try {
         $phone = $_POST["phone"];
         $note = $_POST["note"];
 
-        // Validate các trường
-        if (empty($_SESSION['user']['full_name'])) {
-            $error['fullname'] = 'Họ tên không được để trống';
-        }
-
-        if (empty($_SESSION['user']['email'])) {
-            $error['email'] = 'Email không được để trống';
-        } elseif (!filter_var($_SESSION['user']['email'], FILTER_VALIDATE_EMAIL)) {
-            $error['email'] = 'Email không đúng định dạng';
-        }
-
+        // Validate form
         if (empty($address)) {
             $error['address'] = 'Địa chỉ không được để trống';
-        } elseif (strlen($address) > 255) {
+        }
+        if (strlen($address) > 255) {
             $error['address'] = 'Địa chỉ tối đa 255 ký tự';
         }
-
         if (empty($phone)) {
             $error['phone'] = 'Số điện thoại không được để trống';
-        } elseif (!preg_match('/^(03|05|07|08|09)\d{8}$/', $phone)) {
-            $error['phone'] = 'Số điện thoại không đúng định dạng.';
+        } else {
+            if (!preg_match('/^(03|05|07|08|09)\d{8}$/', $phone)) {
+                $error['phone'] = 'Số điện thoại không đúng định dạng.';
+            }
         }
 
         // Table orderdetails
@@ -55,29 +41,40 @@ try {
         $arr_color = $_POST["color"];
 
         if (empty(array_filter($error))) {
-            // Thanh toán MOMO
-            include_once "views/checkout/momo.php";
+            // B1: Insert vào orders
+            $payment_method_id = 1; 
+            $OrderModel->insert_orders($user_id, $total, $address, $phone, $note, $payment_method_id);
 
-            // Sau khi thanh toán momo thành công
-            $OrderModel->insert_orders($user_id, $total, $address, $phone, $note);
+            // B2: Lấy order_id
             $result_select = $OrderModel->select_order_id();
             $order_id = $result_select['order_id'];
 
-            include_once "views/checkout/send-mail-order.php";
-
             if (!empty($order_id)) {
+                // B3: Insert orderdetails
                 for ($i = 0; $i < count($arr_product_id); $i++) {
-                    $product_id = $arr_product_id[$i];
-                    $quantity = $arr_quantity[$i];
-                    $price = $arr_price[$i];
-                    $size = $arr_size[$i];
-                    $color = $arr_color[$i];
-
-                    $OrderModel->insert_orderdetails($order_id, $product_id, $quantity, $price, $size, $color);
+                    $OrderModel->insert_orderdetails(
+                        $order_id,
+                        $arr_product_id[$i],
+                        $arr_quantity[$i],
+                        $arr_price[$i],
+                        $arr_size[$i],
+                        $arr_color[$i]
+                    );
                 }
+
+                // B4: Xóa giỏ hàng
                 $OrderModel->delete_cart_by_user_id($user_id);
+
+                // B5: Gửi mail
+                include_once "views/checkout/send-mail-order.php";
+
+                // B6: Thanh toán MOMO
+                include_once "views/checkout/momo.php";
+            } else {
+                echo '<script>alert("Có lỗi xảy ra khi tạo đơn hàng. Vui lòng thử lại!");</script>';
             }
         } else {
+            // Nếu có lỗi form thì lưu lại dữ liệu nhập
             $temp['address'] = $address;
             $temp['phone'] = $phone;
             $temp['note'] = $note;
@@ -85,7 +82,7 @@ try {
     }
 } catch (Exception $e) {
     $error_message = $e->getMessage();
-    echo $error_message;
+    echo "<script>alert('Lỗi: $error_message');</script>";
 }
 ?>
 
@@ -126,14 +123,12 @@ if (isset($_SESSION['user'])) {
                                 <div class="checkout__form__input">
                                     <p>Họ tên <span>*</span></p>
                                     <input type="text" disabled name="full_name" value="<?= $_SESSION['user']['full_name'] ?>">
-                                    <span class="text-danger error"><?=$error['fullname']?></span>
                                 </div>
                             </div>
                             <div class="col-lg-6 col-md-6 col-sm-6">
                                 <div class="checkout__form__input">
                                     <p>Email <span>*</span></p>
                                     <input disabled type="text" name="email" value="<?= $_SESSION['user']['email'] ?>">
-                                    <span class="text-danger error"><?=$error['email']?></span>
                                 </div>
                             </div>
                             <div class="col-lg-12">
@@ -177,13 +172,15 @@ if (isset($_SESSION['user'])) {
                                             $i++;
                                     ?>
                                     <li>
+                                        <!-- Thông tin insert vào orders -->
                                         <input type="hidden" name="user_id" value="<?=$user_id?>">
                                         <input type="hidden" name="total_checkout" value="<?=$totalPayment?>">
+                                        <!-- Thông tin insert vào orderdetails -->
                                         <input type="hidden" name="product_id[]" value="<?=$product_id?>">
                                         <input type="hidden" name="quantity[]" value="<?=$product_quantity?>">
                                         <input type="hidden" name="price[]" value="<?=$product_price?>">    
-                                        <input type="hidden" name="size[]" value="<?=$product_size?>"> 
-                                        <input type="hidden" name="color[]" value="<?=$product_color?>">
+                                        <input type="hidden" name="size[]" value="<?=$product_size?>"> <!-- Hidden size -->
+                                        <input type="hidden" name="color[]" value="<?=$product_color?>"> <!-- Hidden color -->
 
                                         <?=$i?>.
                                         <?=$product_name?>
@@ -211,6 +208,7 @@ if (isset($_SESSION['user'])) {
                             <button type="button" class="site-btn btn-momo" data-toggle="modal" data-target="#thanhtoan">
                                 THANH TOÁN MOMO
                             </button>
+                            <!-- Modal thanh toán-->
                             <div class="modal fade" id="thanhtoan" tabindex="-1" role="dialog" aria-labelledby="thanhtoan" aria-hidden="true">
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
@@ -222,7 +220,10 @@ if (isset($_SESSION['user'])) {
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
-                                            <button type="submit" name="payUrl" class="btn btn-primary">Xác nhận</button>
+                                            <button type="submit" name="payUrl" class="site-btn btn-momo">
+                                            THANH TOÁN MOMO
+                                        </button>
+
                                         </div>
                                     </div>
                                 </div>
@@ -231,7 +232,7 @@ if (isset($_SESSION['user'])) {
                             <div class="checkout__order__widget text-center text-primary mb-2">                        
                                 Chưa có sản phẩm trong giỏ hàng
                             </div> 
-                            <a href="cua-hang" class="site-btn btn">Xem sản phẩm</a>
+                            <a href="index.php?url=cua-hang" class="site-btn btn">Xem sản phẩm</a>
                             <?php } ?>
                         </div>
                     </div>

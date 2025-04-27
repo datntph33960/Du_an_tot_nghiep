@@ -152,32 +152,29 @@ $html_alert = $BaseModel->alert_error_success('', $success);
                     </select>
                     <label for="categorySelect">Chọn danh mục</label>
                 </div>
+
                 <!-- Kích thước -->
-                <div class="mb-3">
-                    <label class="form-label">Chọn kích thước</label>
-                    <div class="form-check">
-                        <?php foreach ($list_sizes as $size): ?>
-                            <div>
-                                <input class="form-check-input" type="checkbox" name="size[]" id="size_<?=$size?>" value="<?=$size?>" <?=in_array($size, $selected_sizes) ? 'checked' : ''?>>
-                                <label class="form-check-label" for="size_<?=$size?>"><?=$size?></label>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
+                <div class="form-floating mb-3">
+                <select name="size[]" class="form-select" id="sizeSelect" multiple>
+                    <?php foreach ($list_sizes as $size): ?>
+                        <option value="<?=$size?>" <?=in_array($size, $selected_sizes) ? 'selected' : ''?>><?=$size?></option>
+                    <?php endforeach; ?>
+                </select>
+                    <label for="sizeSelect">Chọn kích thước</label>
                     <span class="text-danger"><?=$error['size']?></span>
                 </div>
+
                 <!-- Màu sắc -->
-                <div class="mb-3">
-                    <label class="form-label">Chọn màu</label>
-                    <div class="form-check">
-                        <?php foreach ($list_colors as $color): ?>
-                            <div>
-                                <input class="form-check-input" type="checkbox" name="color[]" id="color_<?=$color?>" value="<?=$color?>" <?=in_array($color, $selected_colors) ? 'checked' : ''?>>
-                                <label class="form-check-label" for="color_<?=$color?>"><?=$color?></label>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
+                <div class="form-floating mb-3">
+                <select name="color[]" class="form-select" id="colorSelect" multiple>
+                    <?php foreach ($list_colors as $color): ?>
+                        <option value="<?=$color?>" <?=in_array($color, $selected_colors) ? 'selected' : ''?>><?=$color?></option>
+                    <?php endforeach; ?>
+                </select>
+                    <label for="colorSelect">Chọn màu</label>
                     <span class="text-danger"><?=$error['color']?></span>
                 </div>
+
                 <!-- Nút thao tác -->
                 <h6 class="mb-4">
                     <input type="submit" name="update_product" value="Cập nhật" class="btn btn-custom">
