@@ -70,8 +70,8 @@
                     <div class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-chart-bar me-2"></i> Thống kê</a>
                         <div class="dropdown-menu bg-transparent border-0">
-                            <a href="thong-ke-san-pham" class="dropdown-item">Sản phẩm - danh mục</a>
-                            <a href="thong-ke-don-hang" class="dropdown-item">Đơn hàng</a>
+                            <a href="index.php?quanli=thong-ke-san-pham" class="dropdown-item">Sản phẩm - danh mục</a>
+                            <a href="index.php?quanli=thong-ke-don-hang" class="dropdown-item">Đơn hàng</a>
                             
                         </div>
                     </div>

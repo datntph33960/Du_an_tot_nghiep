@@ -41,7 +41,7 @@
                 <div class="bg-light rounded h-100 p-4">
                     <h6 class="mb-4">
                         <a href="index.php?quanli=danh-muc-bai-viet" class="link-not-hover">Chuyên mục</a>
-                         Cập nhật chuyên mục
+                        / Cập nhật chuyên mục
                     </h6>
                     <?=$html_alert?>
                     <label for="floatingInput">Tên chuyên mục</label>

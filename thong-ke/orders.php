@@ -10,7 +10,7 @@ $statistics_orders = $OrderModel->get_order_product_statistics();
     <div class="bg-light text-center rounded p-4">
         <div class="d-flex align-items-center justify-content-between mb-4">
             <h6 class="mb-0">Thống kê đơn hàng</h6>
-            <a href="bieu-do-luot-ban&top=10" class="btn btn-custom">Xem biểu đồ</a>
+            <a href="index.php?quanli=bieu-do-luot-ban&top=10" class="btn btn-custom">Xem biểu đồ</a>
         </div>
 
         <div class="table-responsive">
