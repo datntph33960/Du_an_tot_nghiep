@@ -43,8 +43,10 @@
 
                         // Trang thái đơn hàng
                         $order_status = '<a href="" class="btn btn-small btn-danger">Chờ xác nhận</a>';
-                        if($status == 2) {
-                            $order_status = '<a href="" class="btn btn-small btn-warning">Đã xác nhận</a>';
+                        if($status == 0) {
+                            $order_status = '<a href="" class="btn btn-small btn-warning">Đã hủy</a>';
+                        } elseif($status == 2) {
+                            $order_status = '<a href="" class="btn btn-small btn-success">Đã xác nhận</a>';
                         } elseif($status == 3) {
                             $order_status = '<a href="" class="btn btn-small btn-success">Đang giao</a>';
                         } elseif($status == 4) {
@@ -63,7 +65,6 @@
                         <td class="td-responsive-2">
                             <a class="btn-sm btn-success" href="index.php?quanli=cap-nhat-don-hang&id=<?=$order_id?>">Xem</a>
                             <a class="btn-sm btn-secondary" href="index.php?quanli=cap-nhat-don-hang&id=<?=$order_id?>">Sửa</a>      
-                            <a class="btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa')" href="danh-sach-don-hang&xoa=<?=$order_id?>">Xóa</a>                     
                         </td>
                     </tr>
                     <?php

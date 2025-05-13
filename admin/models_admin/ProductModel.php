@@ -140,6 +140,21 @@
             }
             return [];
         }
+// ProductModel.php
+public function get_category_product_statistics() {
+    $sql = "
+        SELECT 
+            categories.name AS cate_name,
+            COUNT(products.product_id) AS count_products,
+            MIN(products.price) AS min_price,
+            MAX(products.price) AS max_price,
+            ROUND(AVG(products.price)) AS avg_product
+        FROM products
+        JOIN categories ON products.category_id = categories.category_id
+        GROUP BY categories.category_id
+    ";
+    return pdo_query($sql);
+}
 
     }
 

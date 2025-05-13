@@ -10,7 +10,9 @@
 
         //Trang thái đơn hàng
         $order_status = 'Chưa xác nhận';
-        if($status == 2) {
+        if($status == 0) {
+            $order_status = 'Đã hủy';
+        }elseif($status == 2) {
             $order_status = 'Đã xác nhận';
         }elseif($status == 3) {
             $order_status = 'Đang giao';
@@ -95,10 +97,19 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-sm-4">
-                                    <p class="mb-0 text-right">Họ và tên</p>
+                                    <p class="mb-0 text-right">Tên người đặt</p>
                                 </div>
                                 <div class="col-sm-8">
                                     <p class="mb-0 text-right"><?=$full_name?></p>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <p class="mb-0 text-right">SĐT người đặt</p>
+                                </div>
+                                <div class="col-sm-8">
+                                    <p class="mb-0 text-right"><?=$user_phone?></p>
                                 </div>
                             </div>
                             <hr>
@@ -108,6 +119,24 @@
                                 </div>
                                 <div class="col-sm-8">
                                     <p class="mb-0 text-right"><?=$order_address?></p>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <p class="mb-0 text-right">Tên người nhận</p>
+                                </div>
+                                <div class="col-sm-8">
+                                    <p class="mb-0 text-right"><?=$receiver_name?></p>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <p class="mb-0 text-right">SĐT người nhận</p>
+                                </div>
+                                <div class="col-sm-8">
+                                    <p class="mb-0 text-right"><?=$receiver_phone?></p>
                                 </div>
                             </div>
                             <hr>

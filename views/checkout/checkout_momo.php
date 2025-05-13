@@ -17,6 +17,8 @@ try {
         $address = $_POST["address"];
         $phone = $_POST["phone"];
         $note = $_POST["note"];
+        $receiver_name = $_POST["receiver_name"];
+        $receiver_phone = $_POST["receiver_phone"];
 
         // Validate form
         if (empty($address)) {
@@ -43,7 +45,7 @@ try {
         if (empty(array_filter($error))) {
             // B1: Insert vào orders
             $payment_method_id = 1; 
-            $OrderModel->insert_orders($user_id, $total, $address, $phone, $note, $payment_method_id);
+            $OrderModel->insert_orders($user_id, $total, $address, $phone, $note, $payment_method_id, $receiver_name, $receiver_phone);
 
             // B2: Lấy order_id
             $result_select = $OrderModel->select_order_id();
@@ -133,6 +135,12 @@ if (isset($_SESSION['user'])) {
                             </div>
                             <div class="col-lg-12">
                                 <div class="checkout__form__input">
+                                    <p>Tên người nhận <span>*</span></p>
+                                    <input type="text" name="receiver_name" required>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="checkout__form__input">
                                     <p>Địa chỉ <span>*</span></p>
                                     <input class="mb-0" type="text" name="address" value="<?=$temp['address']?>">
                                     <span class="text-danger error"><?=$error['address']?></span>
@@ -143,6 +151,12 @@ if (isset($_SESSION['user'])) {
                                     <p>Số điện thoại <span>*</span></p>
                                     <input class="mb-0" type="text" name="phone" value="<?=$temp['phone']?>">
                                     <span class="text-danger error"><?=$error['phone']?></span>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="checkout__form__input">
+                                    <p>Số điện thoại người nhận <span>*</span></p>
+                                    <input type="text" name="receiver_phone" required>
                                 </div>
                             </div>
                             <div class="col-lg-12">

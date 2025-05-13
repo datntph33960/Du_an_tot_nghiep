@@ -22,12 +22,29 @@
 </div>
 
 <?php
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["cancel_order"])) {
+        $cancel_order_id = (int)$_POST["cancel_order_id"];
+
+        // Kiểm tra đơn hàng có thuộc về user không & trạng thái là chưa xác nhận
+        $order = $OrderModel->get_order_by_id_and_user($cancel_order_id, $user_id);
+
+        if ($order && $order['status'] == 1) {
+            $OrderModel->update_status_order(0, $cancel_order_id); // 0: Đã hủy
+            echo "<script>alert('Đã hủy đơn hàng thành công!'); window.location.href = 'index.php?url=don-hang';</script>";
+            exit;
+        } else {
+            echo "<script>alert('Không thể hủy đơn hàng này!');</script>";
+        }
+    }
+
     foreach ($list_orders as $value) {
         extract($value);
         $list_products_buyed = $OrderModel->select_orderdetails_and_products($order_id);
         //Trang thái đơn hàng
         $order_status = 'Chưa xác nhận';
-        if($status == 2) {
+        if($status == 0) {
+            $order_status = 'Đã hủy';
+        }elseif($status == 2) {
             $order_status = 'Đã xác nhận';
         }elseif($status == 3) {
             $order_status = 'Đang giao';
@@ -78,6 +95,20 @@
             <hr>
             <div >
                 <a href="#" class="btn btn-custom" data-abc="true"> <i class="fa fa-chevron-left"></i> Trở lại</a>
+                <div class="float-right">
+                <?php if ($status == 1): ?>
+                        <form method="post" action="" style="display:inline-block" onsubmit="return confirm('Bạn chắc chắn muốn hủy đơn hàng này?');">
+                            <input type="hidden" name="cancel_order_id" value="<?=$order_id?>">
+                            <button type="submit" name="cancel_order" class="btn btn-danger ml-2">Hủy đơn</button>
+                        </form>
+                    <?php elseif ($status == 0): ?>
+                        <button type="submit" name="cancel_order" class="btn btn-danger ml-2" disabled>Hủy đơn</button>
+                    <?php elseif (in_array($status, [2, 3])): ?>
+                        <button type="submit" name="cancel_order" class="btn btn-custom ml-2" disabled>Đánh giá</button>
+                    <?php elseif ($status == 4): ?>
+                        <button type="submit" name="cancel_order" class="btn btn-success ml-2">Đánh giá</button>
+                <?php endif; ?>
+                </div>
                 <div class="float-right">
                     <span class="text-dark">Thành tiền: </span> 
                     <span style="font-weight: 600;" class="text-danger mr-3"><?=number_format($total)?>₫</span>

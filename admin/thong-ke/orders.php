@@ -1,9 +1,6 @@
 <?php
 $statistics_orders = $OrderModel->get_order_product_statistics();
-
 ?>
-
-
 
 <!-- Thống kê đơn hàng -->
 <div class="container-fluid pt-4 px-4">
@@ -15,21 +12,20 @@ $statistics_orders = $OrderModel->get_order_product_statistics();
 
         <div class="table-responsive">
             <table class="table text-start align-middle table-bordered table-hover mb-0">
-
                 <thead>
                     <tr class="text-dark">
                         <th scope="col">#</th>
                         <th scope="col">Tên danh mục</th>
                         <th scope="col">Tên sản phẩm</th>
-                        <th scope="col">Số đơn hàng </th>
-                        <th scope="col">Đã bán </th>
-
+                        <th scope="col">Số đơn hàng</th>
+                        <th scope="col">Đã bán</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php
                     $i = 0;
                     foreach ($statistics_orders as $value) {
+                        // Lấy thông tin các giá trị từ mảng $value
                         extract($value);
                         $i++;
                     ?>
@@ -38,28 +34,22 @@ $statistics_orders = $OrderModel->get_order_product_statistics();
                             <td style="min-width: 120px;"><?= $cate_name ?></td>
                             <td style="min-width: 250px;"><?= $product_name ?></td>
                             <td><?= $count_orders ?></td>
-                            <td><?= $total_sold_quantity ?></td>
-
+                            <td><?= $total_quantity_sold ?></td>
                         </tr>
                     <?php
                     }
                     ?>
-
-
                 </tbody>
                 <tfoot>
                     <tr class="text-dark">
                         <th scope="col">#</th>
                         <th scope="col">Tên danh mục</th>
                         <th scope="col">Tên sản phẩm</th>
-                        <th scope="col">Số đơn hàng </th>
-                        <th scope="col">Đã bán </th>
-
+                        <th scope="col">Số đơn hàng</th>
+                        <th scope="col">Đã bán</th>
                     </tr>
                 </tfoot>
             </table>
-
         </div>
     </div>
 </div>
-

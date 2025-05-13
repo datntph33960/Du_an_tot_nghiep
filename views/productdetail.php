@@ -6,7 +6,9 @@ if (isset($_GET['id_sp'])) {
     // Update product view count and get product details
     $ProductModel->update_views($id_sp);
     $product_details = $ProductModel->select_products_by_id($id_sp);
-    
+    $image_data = trim($product_details['image']);
+    $separator = strpos($image_data, '|') !== false ? '|' : ',';
+    $album_images = array_filter(array_map('trim', explode($separator, $image_data)));
     // Parse sizes and colors from the database
     if (!empty($product_details['sizes'])) {
         $available_sizes = explode(',', $product_details['sizes']); // Assuming sizes are stored as comma-separated values
@@ -42,11 +44,9 @@ if (isset($_GET['id_sp'])) {
                     <a href="index.php"><i class="fa fa-home"></i> Trang chủ</a>
                     <a href="index.php?url=cua-hang">Sản phẩm </a>
                     <a href="index.php?url=danh-muc-san-pham&id=<?=$id_danhmuc?>">
-                        <?php foreach ($name_catgoty as $value) {
-                            if ($value['category_id'] == $id_danhmuc) {
-                                echo $value['name'];
-                            }
-                        } ?>
+                        <?php foreach ($album_images as $img): ?>
+                            <img src="<?= $upload_dir_url . $img ?>" style="width: 50px; margin: 2px;" alt="">
+                        <?php endforeach; ?>
                     </a>
                     <span><?=$name?></span>
                 </div>
@@ -63,13 +63,17 @@ if (isset($_GET['id_sp'])) {
             <div class="col-lg-6">
                 <div class="product__details__pic">
                     <div class="product__details__pic__left product__thumb nice-scroll">
-                        <a class="pt active" href="#product-1">
-                            <img src="upload/<?=$image?>" alt="">
-                        </a>
+                        <?php foreach ($album_images as $index => $img): ?>
+                            <a class="pt <?= $index === 0 ? 'active' : '' ?>" href="#product-<?=$index?>">
+                                <img src="upload/<?= $img ?>" alt="Thumbnail <?=$index?>">
+                            </a>
+                        <?php endforeach; ?>
                     </div>
                     <div class="product__details__slider__content">
                         <div class="product__details__pic__slider owl-carousel">
-                            <img data-hash="product-1" class="product__big__img" src="upload/<?=$image?>" alt="">
+                            <?php foreach ($album_images as $index => $img): ?>
+                                <img data-hash="product-<?=$index?>" class="product__big__img" src="upload/<?= $img ?>" alt="Ảnh sản phẩm <?=$index?>">
+                            <?php endforeach; ?>
                         </div>
                     </div>
                 </div>
@@ -249,7 +253,7 @@ if (isset($_GET['id_sp'])) {
                         </div>
                         <div class="product__item__text">
                             <h6><a href="index.php?url=chitietsanpham&id_sp=<?=$similar['product_id']?>&id_dm=<?=$id_danhmuc?>"><?=$similar['name']?></a></h6>
-                            <h5><?=$ProductModel->formatted_price($similar['price'])?></h5>
+                            <h5 ><?=$ProductModel->formatted_price($similar['price'])?></h5>
                         </div>
                     </div>
                 </div>
@@ -273,5 +277,16 @@ if (isset($_GET['id_sp'])) {
     document.addEventListener("DOMContentLoaded", function () {
         updateSelectedSize();
         updateSelectedColor();
+    });
+     $(document).ready(function(){
+        $(".product__details__pic__slider").owlCarousel({
+            items: 1,
+            loop: true,
+            dots: true,
+            nav: true,
+            navText: ["<i class='fa fa-angle-left'></i>", "<i class='fa fa-angle-right'></i>"],
+            URLhashListener: true,
+            startPosition: 'URLHash'
+        });
     });
 </script>

@@ -10,6 +10,8 @@ try {
         $address = $_POST["address"];
         $phone = $_POST["phone"];
         $note = $_POST["note"];
+        $receiver_name = $_POST["receiver_name"];
+        $receiver_phone = $_POST["receiver_phone"];
 
         // Table orderdetails
         $arr_product_id = $_POST["product_id"];
@@ -20,7 +22,7 @@ try {
 
         // Bước 1: Insert dữ liệu vào orders
         $payment_method_id = 2; 
-        $OrderModel->insert_orders($user_id, $total, $address, $phone, $note, $payment_method_id);
+        $OrderModel->insert_orders($user_id, $total, $address, $phone, $note, $payment_method_id, $receiver_name, $receiver_phone);
 
         // Bước 2: Lấy order_id mới tạo để thểm vào 
         $result_select = $OrderModel->select_order_id();
@@ -38,7 +40,9 @@ try {
                 $OrderModel->insert_orderdetails($order_id, $product_id, $quantity, $price,$sizes,$colors);
             }
             // Sau khi đặt hàng xóa giỏ hàng
-            $OrderModel->delete_cart_by_user_id($user_id);
+            for ($i = 0; $i < count($arr_product_id); $i++) {
+                $OrderModel->delete_cart_item($user_id, $arr_product_id[$i]);
+            }            
             header("Location: index.php?url=cam-on");
         }
         
@@ -92,7 +96,7 @@ try {
                         <div class="row">
                             <div class="col-lg-6 col-md-6 col-sm-6">
                                 <div class="checkout__form__input">
-                                    <p>Họ tên <span>*</span></p>
+                                    <p>Tên người đặt <span>*</span></p>
                                     <input type="text" disabled name="full_name" value="<?= $_SESSION['user']['full_name'] ?>">
                                 </div>
                             </div>
@@ -103,18 +107,27 @@ try {
                                 </div>
                             </div>
                             <div class="col-lg-12">
-
+                                <div class="checkout__form__input">
+                                    <p>Tên người nhận <span>*</span></p>
+                                    <input type="text" name="receiver_name" required>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
                                 <div class="checkout__form__input">
                                     <p>Địa chỉ <span>*</span></p>
                                     <input disabled type="text" value="<?= $_SESSION['user']['address'] ?>">
-
                                 </div>
-
                             </div>
                             <div class="col-lg-12">
                                 <div class="checkout__form__input">
                                     <p>Số điện thoại <span>*</span></p>
                                     <input disabled type="text" name="phone" value="<?= $_SESSION['user']['phone'] ?>">
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="checkout__form__input">
+                                    <p>Số điện thoại người nhận <span>*</span></p>
+                                    <input type="text" name="receiver_phone" required>
                                 </div>
                             </div>
                             <div class="col-lg-12">

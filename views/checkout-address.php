@@ -18,6 +18,8 @@ try {
         $address = $_POST["address"];
         $phone = $_POST["phone"];
         $note = $_POST["note"];
+        $receiver_name = $_POST["receiver_name"];
+        $receiver_phone = $_POST["receiver_phone"];
 
         // Check form
         if(empty($address)) {
@@ -49,7 +51,8 @@ try {
         if(empty(array_filter($error))) {
 
             // Bước 1: Insert dữ liệu vào orders
-            $OrderModel->insert_orders($user_id, $total, $address, $phone, $note);
+            $payment_method_id = 2; 
+            $OrderModel->insert_orders($user_id, $total, $address, $phone, $note, $payment_method_id, $receiver_name, $receiver_phone);
             // Bước 2: Lấy order_id mới tạo để thêm vào orderdetails
             $result_select = $OrderModel->select_order_id();
             $order_id = $result_select['order_id'];
@@ -122,7 +125,7 @@ try {
                         <div class="row">
                             <div class="col-lg-6 col-md-6 col-sm-6">
                                 <div class="checkout__form__input">
-                                    <p>Họ tên <span>*</span></p>
+                                    <p>Tên người đặt <span>*</span></p>
                                     <input type="text" disabled name="full_name" value="<?= $_SESSION['user']['full_name'] ?>">
                                 </div>
                             </div>
@@ -130,6 +133,12 @@ try {
                                 <div class="checkout__form__input">
                                     <p>Email <span>*</span></p>
                                     <input disabled type="text" name="email" value="<?= $_SESSION['user']['email'] ?>">
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="checkout__form__input">
+                                    <p>Tên người nhận <span>*</span></p>
+                                    <input type="text" name="receiver_name" required>
                                 </div>
                             </div>
                             <div class="col-lg-12">
@@ -144,6 +153,12 @@ try {
                                     <p>Số điện thoại <span>*</span></p>
                                     <input class="mb-0" type="text" name="phone" value="<?= htmlspecialchars($temp['phone']) ?>">
                                     <span class="text-danger error"><?= $error['phone'] ?></span>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="checkout__form__input">
+                                    <p>Số điện thoại người nhận <span>*</span></p>
+                                    <input type="text" name="receiver_phone" required>
                                 </div>
                             </div>
                             <div class="col-lg-12">

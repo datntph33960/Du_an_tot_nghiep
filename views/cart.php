@@ -97,6 +97,7 @@ if(isset($_SESSION['user'])) {
                     <table>
                         <thead>
                             <tr>
+                                <th>CHỌN</th>
                                 <th>SẢN PHẨM</th>
                                 <th>GIÁ</th>
                                 <th>SỐ LƯỢNG</th>
@@ -118,6 +119,10 @@ if(isset($_SESSION['user'])) {
                                 $product = $ProductModel->select_cate_in_product($product_id);
                             ?>
                             <tr>
+                                <td>
+                                    <input type="checkbox" name="selected_products[]" value="<?=$cart_id?>" class="select-product"
+                                        data-price="<?=$product_price?>" data-quantity="<?=$product_quantity?>">
+                                </td>
                                 <td class="cart__product__item">
                                     <a href="index.php?url=chitietsanpham&id_sp=<?=$product_id?>&id_dm=<?=$product['category_id']?>">
                                         <img src="upload/<?=$product_image?>" alt="">
@@ -190,11 +195,17 @@ if(isset($_SESSION['user'])) {
                 <div class="cart__total__procced">
                     <h6>Tổng tiền</h6>
                     <ul>
-                        <li>Số lượng <span><?=$count_carts?> sản phẩm</span></li>
-                        <li>Tổng <span><?=number_format($totalPayment)?>đ</span></li>
+                        <li>Số lượng đã chọn: <span id="total-selected">0 sản phẩm</span></li>
+                        <li>Tổng tiền: <span id="total-price">0đ</span></li>
                     </ul>
-                    <a href="index.php?url=thanh-toan" class="primary-btn">THANH TOÁN COD</a>
-                     <a href="index.php?url=thanh-toan-momo" class="btn-momo primary-btn mt-3">THANH TOÁN MOMO</a>
+                    <form action="index.php?url=thanh-toan" method="post" id="checkout-form">
+                        <input type="hidden" name="selected_ids" id="selected_ids">
+                        <button type="submit" class="btn primary-btn" style="width: 100%; padding: 15px">THANH TOÁN COD</button>
+                    </form>
+                    <form action="index.php?url=thanh-toan-momo" method="post" id="checkout-form-momo">
+                        <input type="hidden" name="selected_ids" id="selected_ids_momo">
+                        <button type="submit" class="btn btn-momo primary-btn mt-3" style="width: 100%; padding: 15px">THANH TOÁN MOMO</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -231,6 +242,75 @@ if(isset($_SESSION['user'])) {
         </div>
     </div>
 <?php } ?>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('.select-product');
+    const totalSelectedElement = document.getElementById('total-selected');
+    const totalPriceElement = document.getElementById('total-price');
+    const codForm = document.getElementById('checkout-form');
+    const momoForm = document.getElementById('checkout-form-momo');
+    const hiddenInput = document.getElementById('selected_ids');
+    const hiddenInputMomo = document.getElementById('selected_ids_momo');
+
+    function updateTotals() {
+        let totalQty = 0;
+        let totalPrice = 0;
+        checkboxes.forEach(cb => {
+            if (cb.checked) {
+                const qty = parseInt(cb.dataset.quantity);
+                const price = parseFloat(cb.dataset.price);
+                totalQty += qty;
+                totalPrice += qty * price;
+            }
+        });
+        totalSelectedElement.textContent = totalQty + ' sản phẩm';
+        totalPriceElement.textContent = new Intl.NumberFormat('vi-VN').format(totalPrice) + 'đ';
+    }
+
+    function collectSelectedIds() {
+        const selected = [];
+        checkboxes.forEach(cb => {
+            if (cb.checked) {
+                selected.push(cb.value);
+            }
+        });
+        return selected.join(',');
+    }
+
+    if (codForm) {
+        codForm.addEventListener('submit', function(e) {
+            const selectedIds = collectSelectedIds();
+            if (!selectedIds) {
+                alert("Vui lòng chọn sản phẩm để thanh toán.");
+                e.preventDefault();
+                return;
+            }
+            hiddenInput.value = selectedIds;
+        });
+    }
+
+    if (momoForm) {
+        momoForm.addEventListener('submit', function(e) {
+            const selectedIds = collectSelectedIds();
+            if (!selectedIds) {
+                alert("Vui lòng chọn sản phẩm để thanh toán.");
+                e.preventDefault();
+                return;
+            }
+            hiddenInputMomo.value = selectedIds;
+        });
+    }
+
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', updateTotals);
+    });
+
+    updateTotals();
+});
+</script>
+
+
 
 <style>
     .cart__btn a:hover {
