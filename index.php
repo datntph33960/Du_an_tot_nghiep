@@ -107,7 +107,13 @@
             //Bài viết
             case 'tim-kiem':    
                 require_once "views/search.php";
-                break;    
+                break;
+            case 'danh-gia':
+                    include 'views/Evaluate.php';
+                    break;
+            case 'luu-danh-gia':
+                include 'views/danh-gia.php';
+                break;
 
             default:
                 require_once "views/not-page.php";
