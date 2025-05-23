@@ -97,7 +97,7 @@
                                 <td><?=$value['name']?></td>
                                 <td><?=$value['post_count']?></td>
                                 <td>
-                                    <a href="cap-nhat-danh-muc-bai-viet&id=<?=$value['id']?>" class="btn-sm btn-secondary">Sửa</a>
+                                    <a href="index.php?quanli=cap-nhat-danh-muc-bai-viet&id=<?=$value['id']?>" class="btn-sm btn-secondary">Sửa</a>
                                     <a href="index.php?quanli=danh-muc-bai-viet&xoa=<?=$value['id']?>&qty_post=<?=$value['post_count']?>" class="btn-sm btn-danger">Xóa</a>
                                 </td>
                             </tr>

@@ -21,15 +21,16 @@
         </div>
 
         <div class="table-responsive">
-            <table class="table text-start align-middle table-bordered table-hover mb-0" id="orders-list">
+            <table class="table text-start align-middle table-bordered table-hover mb-0 w-100" id="orders-list">
                 <thead>
                     <tr class="text-dark">
                         <th scope="col">#</th>
+                        <th scope="col">Mã đơn</th>
                         <th scope="col">Tên khách hàng</th>
                         <th scope="col">Ngày đặt</th>
                         <th scope="col">Tổng tiền</th>
                         <th scope="col">Trạng Thái</th>
-                        <th scope="col">Phương thức thanh toán</th>  <!-- Thêm cột payment_method -->
+                        <th scope="col">Phương thức thanh toán</th>
                         <th scope="col">Chỉnh sửa</th>
                     </tr>
                 </thead>
@@ -42,9 +43,9 @@
                         $formatted_date = $BaseModel->date_format($date, '');
 
                         // Trang thái đơn hàng
-                        $order_status = '<a href="" class="btn btn-small btn-danger">Chờ xác nhận</a>';
+                        $order_status = '<a href="" class="btn btn-small btn-warning">Chờ xác nhận</a>';
                         if($status == 0) {
-                            $order_status = '<a href="" class="btn btn-small btn-warning">Đã hủy</a>';
+                            $order_status = '<a href="" class="btn btn-small btn-danger">Đã hủy</a>';
                         } elseif($status == 2) {
                             $order_status = '<a href="" class="btn btn-small btn-success">Đã xác nhận</a>';
                         } elseif($status == 3) {
@@ -55,12 +56,13 @@
                     ?>
                     <tr>
                         <td><?=$i?></td>
+                        <td class="text-primary fw-bold"><?=$order_code?></td>
                         <td class="td-name"><?=$full_name?></td>
                         <td class="td-date"><?=$formatted_date?></td>
                         <td class="text-dark" style="font-weight: 600;"><?=number_format($total)?>₫</td>
                         <td class="td-responsive-2"><?=$order_status?></td>
                         <td class="td-responsive-2">
-                            <?=$method_name?>  <!-- Hiển thị phương thức thanh toán -->
+                            <?=$method_name?>
                         </td>
                         <td class="td-responsive-2">
                             <a class="btn-sm btn-success" href="index.php?quanli=cap-nhat-don-hang&id=<?=$order_id?>">Xem</a>
@@ -77,7 +79,23 @@
 </div>
 
 <style>
-    td {
+    .table-responsive {
+        width: 100%;
+    }
+    table#orders-list {
+        width: 100%;
+        table-layout: auto; 
+    }
+    td, th {
+        white-space: nowrap; 
+        padding: 12px 15px;
         height: 50px;
     }
+
+    .td-name {
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 </style>
+

@@ -1,40 +1,46 @@
 <?php
+require_once __DIR__ . '/../models/ProductModel.php';
+require_once __DIR__ . '/../models/CategoryModel.php';
+require_once __DIR__ . '/../models/CommentModel.php';
+
+$ProductModel = new ProductModel();
+$CategoryModel = new CategoryModel();
+$CommentModel = new CommentModel();
+
 if (isset($_GET['id_sp'])) {
     $id_sp = $_GET['id_sp'];
     $id_danhmuc = $_GET['id_dm'];
 
-    // Update product view count and get product details
     $ProductModel->update_views($id_sp);
     $product_details = $ProductModel->select_products_by_id($id_sp);
+    $product_variants = $ProductModel->get_product_variants($id_sp);
+
+    $available_sizes = array_unique(array_column($product_variants, 'size'));
+    $available_colors = array_unique(array_column($product_variants, 'color'));
+
     $image_data = trim($product_details['image']);
     $separator = strpos($image_data, '|') !== false ? '|' : ',';
     $album_images = array_filter(array_map('trim', explode($separator, $image_data)));
-    // Parse sizes and colors from the database
-    if (!empty($product_details['sizes'])) {
-        $available_sizes = explode(',', $product_details['sizes']); // Assuming sizes are stored as comma-separated values
-    } else {
-        $available_sizes = []; // Default to empty array if no sizes
-    }
 
-    if (!empty($product_details['colors'])) {
-        $available_colors = explode(',', $product_details['colors']); // Assuming colors are stored as comma-separated values
-    } else {
-        $available_colors = []; // Default to empty array if no colors
+    // Nếu bảng chính có dữ liệu sizes/colors, ưu tiên hiển thị từ đó
+    if (!empty($product_details['sizes'])) {
+        $available_sizes = explode(',', $product_details['sizes']);
     }
+    if (!empty($product_details['colors'])) {
+        $available_colors = explode(',', $product_details['colors']);
+    }
+$total_quantity = array_sum(array_column($product_variants, 'quantity'));
 
     $similar_product = $ProductModel->select_products_similar($id_danhmuc);
-    $name_catgoty = $CategoryModel->select_name_categories();
-} 
+    $name_category = $CategoryModel->select_name_categories();
+    $list_comments = $CommentModel->select_comments_by_id($id_sp);
 
-extract($product_details);
-$discount_percentage = $ProductModel->discount_percentage($price, $sale_price);
-
-// Fetch comments
-if (isset($_GET['id_sp'])) {
-    $product_id = $_GET['id_sp'];
-    $list_comments = $CommentModel->select_comments_by_id($product_id);
+    extract($product_details);
+    $discount_percentage = $ProductModel->discount_percentage($price, $sale_price);
 }
 ?>
+
+<!-- Breadcrumb Begin -->
 <!-- Breadcrumb Begin -->
 <div class="breadcrumb-option">
     <div class="container">
@@ -42,11 +48,9 @@ if (isset($_GET['id_sp'])) {
             <div class="col-lg-12">
                 <div class="breadcrumb__links">
                     <a href="index.php"><i class="fa fa-home"></i> Trang chủ</a>
-                    <a href="index.php?url=cua-hang">Sản phẩm </a>
+                    <a href="index.php?url=cua-hang">Cửa hàng</a>
                     <a href="index.php?url=danh-muc-san-pham&id=<?=$id_danhmuc?>">
-                        <?php foreach ($album_images as $img): ?>
-                            <img src="<?= $upload_dir_url . $img ?>" style="width: 50px; margin: 2px;" alt="">
-                        <?php endforeach; ?>
+                        <?=$name_category[array_search($id_danhmuc, array_column($name_category, 'category_id'))]['name'] ?? ''?>
                     </a>
                     <span><?=$name?></span>
                 </div>
@@ -54,6 +58,8 @@ if (isset($_GET['id_sp'])) {
         </div>
     </div>
 </div>
+<!-- Breadcrumb End -->
+
 <!-- Breadcrumb End -->
 
 <!-- Product Details Section Begin -->
@@ -81,13 +87,18 @@ if (isset($_GET['id_sp'])) {
             <div class="col-lg-6">
                 <div class="product__details__text">
                     <h3><?=$name?>
-                        <span>
-                            Danh mục: <?php foreach ($name_catgoty as $value) {
-                                if ($value['category_id'] == $id_danhmuc) {
-                                    echo $value['name'];
-                                }
-                            } ?>
-                        </span>
+                    <span>
+                        Danh mục: 
+                        <?php 
+                        foreach ($name_category as $value) {
+                            if ($value['category_id'] == $id_danhmuc) {
+                                echo $value['name'];
+                                break; // thêm break để tối ưu sau khi tìm thấy
+                            }
+                        }
+                        ?>
+                    </span>
+
                     </h3>
                     <div class="rating">
                         <i class="fa fa-star"></i>
@@ -98,12 +109,15 @@ if (isset($_GET['id_sp'])) {
                         <span>( <?=count($list_comments)?> bình luận )</span>
                     </div>
                     <div class="product__details__price">
-                        <?=$ProductModel->formatted_price($price); ?> 
-                        <div class="label_right ml-2"><?=$discount_percentage?></div>
+                        <?php if ($sale_price > 0): ?>
+                            <span class="text-danger"><?=$ProductModel->formatted_price($sale_price)?></span>
+                            <span class="old-price"><?=$ProductModel->formatted_price($price)?></span>
+                            <span class="discount">-<?=$discount_percentage?></span>
+                        <?php else: ?>
+                            <span><?=$ProductModel->formatted_price($price)?></span>
+                        <?php endif; ?>
                     </div>
-                    <div class="short__description">
-                        <?=$short_description?>
-                    </div>
+
                     <div class="product__details__size">
                         <label for="size">Kích thước:</label>
                         <select id="size" name="size" class="form-control" onchange="updateSelectedSize()">
@@ -139,10 +153,12 @@ if (isset($_GET['id_sp'])) {
                                     <span class="text-dark">Số lượng</span>
                                     <div class="input-next-cart d-flex mx-4"> 
                                         <input type="button" value="-" class="button-minus" data-field="quantity">
-                                        <input type="number" step="1" min="1" max="<?=$quantity?>" value="1" name="product_quantity" class="quantity-field-cart">
+                                        <input type="number" step="1" min="1" max="<?=$total_quantity?>" value="1" name="product_quantity" class="quantity-field-cart">
+                                        
                                         <input type="button" value="+" class="button-plus" data-field="quantity">
+                                        <span class="text-dark"><?=$total_quantity?> sản phẩm  </span>
                                     </div> 
-                                    <span class="text-dark"><?=$quantity?> sản phẩm có sẵn</span>
+                                    <span class="text-dark"><?=$total_quantity?> sản phẩm có sẵn</span>
                                 </div>
                                 
                                 <input value="<?=$product_id?>" type="hidden" name="product_id">
@@ -169,10 +185,11 @@ if (isset($_GET['id_sp'])) {
                                 <span class="text-dark">Số lượng</span>
                                 <div class="input-next-cart d-flex mx-4"> 
                                     <input type="button" value="-" class="button-minus" data-field="quantity">
-                                    <input type="number" step="1" max="50" value="1" name="product_quantity" class="quantity-field-cart">
+                                    <input type="number" step="1" min max="<?=$total_quantity?>" value="1" name="product_quantity" class="quantity-field-cart">
                                     <input type="button" value="+" class="button-plus" data-field="quantity">
+                                    <span class="text-dark"><?=$total_quantity?> sản phẩm  </span>
                                 </div> 
-                                <span class="text-dark"><?=$quantity?> sản phẩm có sẵn</span>
+                                <span class="text-dark"><?=$total_quantity?> sản phẩm có sẵn</span>
                             </div>
                             <div class="quantity">
                                 <button name="add_to_cart" onclick="alert('Vui lòng dăng nhập để thực hiện chức năng');" style="border: none;" type="button" class="cart-btn btn-primary">
@@ -273,12 +290,12 @@ if (isset($_GET['id_sp'])) {
         document.getElementById('selected_color').value = selected;
     }
 
-    // Tự cập nhật giá trị khi trang load lần đầu (đảm bảo hidden input có giá trị mặc định)
     document.addEventListener("DOMContentLoaded", function () {
         updateSelectedSize();
         updateSelectedColor();
     });
-     $(document).ready(function(){
+
+    $(document).ready(function(){
         $(".product__details__pic__slider").owlCarousel({
             items: 1,
             loop: true,
@@ -290,3 +307,4 @@ if (isset($_GET['id_sp'])) {
         });
     });
 </script>
+

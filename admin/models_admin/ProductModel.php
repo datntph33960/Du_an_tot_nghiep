@@ -1,14 +1,25 @@
 <?php
     class ProductModel {
         public function insert_product($category_id, $name, $image, $quantity, $price, $details, $short_description, $sizes, $colors) {
+            // Thêm sản phẩm vào bảng products
             $sql = "INSERT INTO products 
                     (category_id, name, image, quantity, price, details, short_description, sizes, colors)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        
-            // Gọi pdo_execute với các tham số
-            pdo_execute($sql, $category_id, $name, $image, $quantity, $price, $details, $short_description, $sizes, $colors);
-        }
-        
+            
+            // Gọi pdo_execute và lấy product_id mới vừa tạo
+            $product_id = pdo_execute_return_lastInsertId($sql, $category_id, $name, $image, $quantity, $price, $details, $short_description, $sizes, $colors);
+
+            // Tạo dữ liệu variant
+            $sizeList = array_map('trim', explode(',', $sizes));
+            $colorList = array_map('trim', explode(',', $colors));
+
+            foreach ($sizeList as $size) {
+                foreach ($colorList as $color) {
+                    $sql_variant = "INSERT INTO product_variants (product_id, size, color, quantity) VALUES (?, ?, ?, ?)";
+                    pdo_execute($sql_variant, $product_id, $size, $color, 0);
+                }
+            }
+        }        
 
         public function select_products() {
             $sql = "SELECT name FROM products WHERE status = 1";

@@ -136,7 +136,7 @@ for ($i = 1; $i <= $numberOfPages; $i++) {
                         <td class="text-dark"><?=$orderNumber?></td>
                         <td class="text-dark" style="min-width: 200px;"><?=$value['name']?></td>
                         <td>
-                            <img style="max-width: 50px;" src="../upload/<?=$value['image']?>" alt="">
+                            <img style="max-width: 50px;" src="../upload/<?= $value['image'] ?>" alt="">
                         </td>
                         <td class="text-dark" style="font-weight: 600;">
                             <?=number_format($value['price'])."₫"?>
@@ -149,7 +149,7 @@ for ($i = 1; $i <= $numberOfPages; $i++) {
                                     <i class="bi bi-three-dots-vertical text-dark"></i>
                                 </a>
                                 <div class="dropdown-menu p-0">
-                                    <a class="dropdown-item" href="../index.php?url=chitietsanpham&id_sp=<?=$value['product_id']?>&id_dm=<?=$value['category_id']?>" target="_blank">
+                                    <a class="dropdown-item" href="index.php?quanli=chi-tiet-san-pham&id=<?=$value['product_id']?>&id_dm=<?=$value['category_id']?>">
                                         Xem
                                     </a>
                                     <a class="dropdown-item" href="index.php?quanli=cap-nhat-san-pham&id=<?=$value['product_id']?>">Sửa</a>

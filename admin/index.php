@@ -30,8 +30,12 @@
                 break;
             case 'them-san-pham':
                          
-                require_once "san-pham/add.php";   
+                require_once "san-pham/add.php"; 
                 break;
+            case 'chi-tiet-san-pham':
+                require_once 'san-pham/detail.php';
+                break;
+
             case 'cap-nhat-san-pham':
                 require_once "san-pham/edit.php";   
                 break;

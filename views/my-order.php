@@ -65,7 +65,7 @@ foreach ($list_orders as $value) {
                 ?>
                 <li class="col-md-4">
                     <figure class="itemside mb-3">
-                        <div class="aside"><img src="upload/<?= $image ?>" class="img-sm border"></div>
+                        <div class="aside"><img src="upload/<?= explode(',', $image)[0] ?>" class="img-sm border"></div>
                         <figcaption class="info align-self-center">
                             <p class="title"><?= $product_name ?> </p> 
                             <span class="text-primary"><?= number_format($product_price) ?>₫</span> 

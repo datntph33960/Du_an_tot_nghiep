@@ -47,6 +47,7 @@
                 orders.status,
                 orders.receiver_name,
                 orders.receiver_phone,
+                orders.receiver_address,
                 users.full_name,
                 users.email,
                 users.phone AS user_phone,
@@ -160,8 +161,9 @@
 
     // Lấy các đơn hàng mới nhất với giới hạn
     public function get_order_top_limit($limit) {
-        $sql = "SELECT * FROM orders ORDER BY date DESC LIMIT ?";
-        return pdo_query($sql, $limit);
+        $limit = (int) $limit;
+        $sql = "SELECT * FROM orders ORDER BY total DESC LIMIT $limit";
+        return pdo_query($sql);
     }
 
     // Thống kê sản phẩm theo danh mục

@@ -12,6 +12,8 @@ try {
         $note = $_POST["note"];
         $receiver_name = $_POST["receiver_name"];
         $receiver_phone = $_POST["receiver_phone"];
+        $receiver_address = $_POST['receiver_address'];
+
 
         // Table orderdetails
         $arr_product_id = $_POST["product_id"];
@@ -22,7 +24,8 @@ try {
 
         // Bước 1: Insert dữ liệu vào orders
         $payment_method_id = 2; 
-        $OrderModel->insert_orders($user_id, $total, $address, $phone, $note, $payment_method_id, $receiver_name, $receiver_phone);
+        $order_code = 'DH' . time();
+        $OrderModel->insert_orders($user_id,$order_code, $total, $address, $phone, $note, $payment_method_id, $receiver_name, $receiver_phone, $receiver_address);
 
         // Bước 2: Lấy order_id mới tạo để thểm vào 
         $result_select = $OrderModel->select_order_id();
@@ -36,8 +39,10 @@ try {
                 $price = $arr_price[$i];
                 $sizes = $arr_size[$i];
                 $colors = $arr_color[$i];
+                $product = $ProductModel->get_product_by_id($product_id);
+                $name = $product['name'];
     
-                $OrderModel->insert_orderdetails($order_id, $product_id, $quantity, $price,$sizes,$colors);
+                $OrderModel->insert_orderdetails($order_id, $product_id, $quantity, $price,$sizes,$colors,$name);
             }
             // Sau khi đặt hàng xóa giỏ hàng
             for ($i = 0; $i < count($arr_product_id); $i++) {
@@ -108,26 +113,32 @@ try {
                             </div>
                             <div class="col-lg-12">
                                 <div class="checkout__form__input">
-                                    <p>Tên người nhận <span>*</span></p>
-                                    <input type="text" name="receiver_name" required>
-                                </div>
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="checkout__form__input">
                                     <p>Địa chỉ <span>*</span></p>
                                     <input disabled type="text" value="<?= $_SESSION['user']['address'] ?>">
                                 </div>
                             </div>
                             <div class="col-lg-12">
                                 <div class="checkout__form__input">
-                                    <p>Số điện thoại <span>*</span></p>
+                                    <p>Số điện thoại người đặt<span>*</span></p>
                                     <input disabled type="text" name="phone" value="<?= $_SESSION['user']['phone'] ?>">
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="checkout__form__input">
+                                    <p>Tên người nhận <span>*</span></p>
+                                    <input type="text" name="receiver_name" required>
                                 </div>
                             </div>
                             <div class="col-lg-12">
                                 <div class="checkout__form__input">
                                     <p>Số điện thoại người nhận <span>*</span></p>
                                     <input type="text" name="receiver_phone" required>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="checkout__form__input">
+                                    <p>Địa chỉ người nhận <span>*</span></p>
+                                    <input type="text" name="receiver_address" required>
                                 </div>
                             </div>
                             <div class="col-lg-12">
@@ -196,13 +207,7 @@ try {
                                     <li>Tổng <span><?=number_format($totalPayment)?>đ</span></li>
                                 </ul>
                             </div>
-                            <div class="checkout__order__widget">
-                                <label for="paypal">
-                                    Thanh toán khi nhận hàng
-                                    <input type="checkbox" id="paypal">
-                                    <span class="checkmark"></span>
-                                </label>
-                            </div>
+                            
                             <?php if($count_cart > 0) {?>
                             <div class="checkout__order__widget text-center text-dark mb-2">                        
                                  Thanh toán khi nhận hàng

@@ -19,6 +19,8 @@
         }elseif($status == 4) {
             $order_status = 'Giao thành công';
         }
+        $first_image = is_array($value['product_image']) ? $value['product_image'][0] : $value['product_image'];
+
 ?>
 
 <div class="breadcrumb-option">
@@ -51,7 +53,7 @@
                     ?>
                     <div class="col text-black"> <strong>Thời gian đặt hàng:</strong> <br><?= $booking_date?></div>
                     <div class="col text-black"> <strong>Thời gian giao ước tính:</strong> <br><?=$delivery_date?></div>
-                    <div class="col text-black"> <strong>Trạng thái:</strong> <br> <?=$order_status?> </div>
+                    <div class="col text-black"> <strong>Trạng thái:</strong> <br> <?= $order_status ?? 'Không rõ' ?> </div>
                     
                 </div>
             </article>
@@ -76,7 +78,7 @@
                 ?>
                 <li class="col-md-4">
                     <figure class="itemside mb-3">
-                        <div class="aside"><img src="upload/<?=$product_image?>" class="img-sm border"></div>
+                        <div class="aside"><img src="upload/<?= $first_image ?>" class="img-sm border"></div>
                         <figcaption class="info align-self-center">
                              <p class="title"><?=$product_name?> </p> 
                             <span class="text-primary"><?=number_format($price)?>₫ </span> 
@@ -118,7 +120,7 @@
                                     <p class="mb-0 text-right">Địa chỉ giao hàng</p>
                                 </div>
                                 <div class="col-sm-8">
-                                    <p class="mb-0 text-right"><?=$order_address?></p>
+                                    <p class="mb-0 text-right"><?=$receiver_address?></p>
                                 </div>
                             </div>
                             <hr>

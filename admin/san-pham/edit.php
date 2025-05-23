@@ -54,7 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["update_product"])) {
     if (!array_filter($error)) {
         $image = $product['image'];
         if (!empty($_FILES["image"]["name"])) {
-            $target_dir = "../upload/";
+            $target_dir = "/Du_an_tot_nghiep/upload/";
             $image_name = basename($_FILES["image"]["name"]);
             $target_file = $target_dir . $image_name;
 
@@ -138,7 +138,7 @@ $html_alert = $BaseModel->alert_error_success('', $success);
                     <label for="formFileSm" class="form-label">Hình ảnh</label>
                     <input class="form-control form-control-sm" name="image" id="formFileSm" type="file" style="background-color: #fff">
                     <div class="my-2">
-                        <img src="../upload/<?=htmlspecialchars($image)?>" alt="Ảnh sản phẩm" class="img-fluid" style="width: 100%;">
+                        <img src="/Du_an_tot_nghiep/upload/<?=htmlspecialchars($image)?>" alt="Ảnh sản phẩm" class="img-fluid" style="width: 100%;">
                     </div>
                     <span class="text-danger"><?=$error['image']?></span>
                 </div>
@@ -154,25 +154,43 @@ $html_alert = $BaseModel->alert_error_success('', $success);
                 </div>
 
                 <!-- Kích thước -->
-                <div class="form-floating mb-3">
-                <select name="size[]" class="form-select" id="sizeSelect" multiple>
+                <div class="mb-3">
+                    <label class="form-label">Kích thước</label><br>
                     <?php foreach ($list_sizes as $size): ?>
-                        <option value="<?=$size?>" <?=in_array($size, $selected_sizes) ? 'selected' : ''?>><?=$size?></option>
+                        <div class="form-check form-check-inline">
+                            <input 
+                                class="form-check-input" 
+                                type="checkbox" 
+                                name="size[]" 
+                                id="size_<?=$size?>" 
+                                value="<?=$size?>" 
+                                <?= in_array($size, $selected_sizes) ? 'checked' : '' ?>
+                            >
+                            <label class="form-check-label" for="size_<?=$size?>"><?=$size?></label>
+                        </div>
                     <?php endforeach; ?>
-                </select>
-                    <label for="sizeSelect">Chọn kích thước</label>
-                    <span class="text-danger"><?=$error['size']?></span>
+                    <br>
+                    <span class="text-danger"><?=$error['size'] ?? ''?></span>
                 </div>
 
                 <!-- Màu sắc -->
-                <div class="form-floating mb-3">
-                <select name="color[]" class="form-select" id="colorSelect" multiple>
+                <div class="mb-3">
+                    <label class="form-label">Màu sắc</label><br>
                     <?php foreach ($list_colors as $color): ?>
-                        <option value="<?=$color?>" <?=in_array($color, $selected_colors) ? 'selected' : ''?>><?=$color?></option>
+                        <div class="form-check form-check-inline">
+                            <input 
+                                class="form-check-input" 
+                                type="checkbox" 
+                                name="color[]" 
+                                id="color_<?=$color?>" 
+                                value="<?=$color?>" 
+                                <?= in_array($color, $selected_colors) ? 'checked' : '' ?>
+                            >
+                            <label class="form-check-label" for="color_<?=$color?>"><?=$color?></label>
+                        </div>
                     <?php endforeach; ?>
-                </select>
-                    <label for="colorSelect">Chọn màu</label>
-                    <span class="text-danger"><?=$error['color']?></span>
+                    <br>
+                    <span class="text-danger"><?=$error['color'] ?? ''?></span>
                 </div>
 
                 <!-- Nút thao tác -->

@@ -69,6 +69,8 @@
             echo "<script>alert('Chỉ được phép cập nhật từng bước một!');</script>";
         }
     }
+    $imageArray = explode(',', $product_image);
+    $firstImage = $imageArray[0];
 ?>
 
 
@@ -85,7 +87,7 @@
                 <?php foreach ($order_details as $value): extract($value); ?>
                 <li class="col-md-4">
                     <figure class="itemside mb-3">
-                        <div class="aside"><img src="../upload/<?=$product_image?>" class="img-sm border"></div>
+                        <div class="aside"><img src="/Du_an_tot_nghiep/upload/<?=$firstImage?>" class="img-sm border"></div>
                         <figcaption class="info align-self-center">
                             <!-- product_name là từ orderdetails.name -->
                             <p class="title"><?=$product_name?><br></p>
@@ -130,10 +132,10 @@
                             <?php
                             $rows = [
                                 "Tên người đặt" => $full_name,
-                                "Số điện thoại" => $order_phone,
+                                "SĐT người nhận" => $order_phone,
                                 "Tên người nhận" => $receiver_name,
                                 "SĐT người nhận" => $receiver_phone,
-                                "Địa chỉ giao hàng" => $order_address,
+                                "Địa chỉ giao hàng" => $receiver_address,
                                 "Phương thức thanh toán" => $method_name,
                                 "Thời gian" => $date_formated,
                                 "Tổng tiền hàng" => number_format($total) . '₫',

@@ -20,6 +20,7 @@ try {
         $note = $_POST["note"];
         $receiver_name = $_POST["receiver_name"];
         $receiver_phone = $_POST["receiver_phone"];
+        $receiver_address = $_POST['receiver_address'];
 
         // Check form
         if(empty($address)) {
@@ -52,7 +53,8 @@ try {
 
             // Bước 1: Insert dữ liệu vào orders
             $payment_method_id = 2; 
-            $OrderModel->insert_orders($user_id, $total, $address, $phone, $note, $payment_method_id, $receiver_name, $receiver_phone);
+            $order_code = 'DH' . time();
+            $OrderModel->insert_orders($user_id,$order_code, $total, $address, $phone, $note, $payment_method_id, $receiver_name, $receiver_phone, $receiver_address);
             // Bước 2: Lấy order_id mới tạo để thêm vào orderdetails
             $result_select = $OrderModel->select_order_id();
             $order_id = $result_select['order_id'];
@@ -63,14 +65,18 @@ try {
                     $product_id = $arr_product_id[$i];
                     $quantity = $arr_quantity[$i];
                     $price = $arr_price[$i];
-                    $size = $arr_size[$i]; // Lưu kích thước
-                    $color = $arr_color[$i]; // Lưu màu sắc
-        
-                    $OrderModel->insert_orderdetails($order_id, $product_id, $quantity, $price, $size, $color); // Cập nhật hàm insert_orderdetails để nhận thêm size và color
+                    $sizes = $arr_size[$i]; // Lưu kích thước
+                    $colors = $arr_color[$i]; // Lưu màu sắc
+                    $product = $ProductModel->get_product_by_id($product_id);
+                    $name = $product['name'];
+    
+                    $OrderModel->insert_orderdetails($order_id, $product_id, $quantity, $price,$sizes,$colors,$name);
                 }
                 // Sau khi đặt hàng xóa giỏ hàng
-                $OrderModel->delete_cart_by_user_id($user_id);
-                header("Location: cam-on");
+                for ($i = 0; $i < count($arr_product_id); $i++) {
+                    $OrderModel->delete_cart_item($user_id, $arr_product_id[$i]);
+                }            
+                header("Location: index.php?url=cam-on");
             }
         } else {
             $temp['address'] = $address;
@@ -137,12 +143,6 @@ try {
                             </div>
                             <div class="col-lg-12">
                                 <div class="checkout__form__input">
-                                    <p>Tên người nhận <span>*</span></p>
-                                    <input type="text" name="receiver_name" required>
-                                </div>
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="checkout__form__input">
                                     <p>Địa chỉ <span>*</span></p>
                                     <input class="mb-0" type="text" name="address" value="<?= htmlspecialchars($temp['address']) ?>">
                                     <span class="text-danger error"><?= $error['address'] ?></span>
@@ -150,15 +150,27 @@ try {
                             </div>
                             <div class="col-lg-12">
                                 <div class="checkout__form__input">
-                                    <p>Số điện thoại <span>*</span></p>
+                                    <p>Số điện thoại người đặt <span>*</span></p>
                                     <input class="mb-0" type="text" name="phone" value="<?= htmlspecialchars($temp['phone']) ?>">
                                     <span class="text-danger error"><?= $error['phone'] ?></span>
                                 </div>
                             </div>
                             <div class="col-lg-12">
                                 <div class="checkout__form__input">
+                                    <p>Tên người nhận <span>*</span></p>
+                                    <input type="text" name="receiver_name" required>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="checkout__form__input">
                                     <p>Số điện thoại người nhận <span>*</span></p>
                                     <input type="text" name="receiver_phone" required>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="checkout__form__input">
+                                    <p>Địa chỉ người nhận <span>*</span></p>
+                                    <input type="text" name="receiver_address" required>
                                 </div>
                             </div>
                             <div class="col-lg-12">

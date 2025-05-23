@@ -37,7 +37,7 @@
                                 <div class="blog__item__pic set-bg" data-setbg="upload/<?=$image?>"></div>
                             </a>
                             <div class="blog__item__text">
-                                <h6><a href="chi-tiet-bai-viet&id=<?=$post_id?>"><?=$title?></a></h6>
+                                <h6><a href="index.php?url=chi-tiet-bai-viet&id=<?=$post_id?>"><?=$title?></a></h6>
                                 <ul>
                                     <li>Tác giả <span><?=$author?></span></li>
                                     <li><?=$created_at?></li>
@@ -66,7 +66,7 @@
                                     foreach ($list_post_catgories as $value) {
                                         extract($value);                              
                                     ?>
-                                    <li><a href="danh-muc-bai-viet&id=<?=$id?>"><?=$name?> <span>(<?=$qty_post?>)</span></a></li>
+                                    <li><a href="index.php?url=danh-muc-bai-viet&id=<?=$id?>"><?=$name?> <span>(<?=$qty_post?>)</span></a></li>
                                     <?php
                                     }
                                     ?>

@@ -46,6 +46,7 @@ class OrderModel {
                 orders.status,
                 orders.receiver_name,
                 orders.receiver_phone,
+                orders.receiver_address,
                 users.full_name,
                 users.email,
                 users.phone AS user_phone,
@@ -71,16 +72,16 @@ class OrderModel {
     }
 
     // Thêm đơn hàng mới
-    public function insert_orders($user_id, $total, $address, $phone, $note, $payment_method_id, $receiver_name, $receiver_phone) {
-    $sql = "INSERT INTO orders(user_id, total, address, phone, note, payment_method_id, receiver_name, receiver_phone)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-    pdo_execute($sql, $user_id, $total, $address, $phone, $note, $payment_method_id, $receiver_name, $receiver_phone);
-    }  
+    public function insert_orders($user_id, $order_code, $total, $address, $phone, $note, $payment_method_id, $receiver_name, $receiver_phone, $receiver_address) {
+        $sql = "INSERT INTO orders(order_code, user_id, total, address, phone, note, payment_method_id, receiver_name, receiver_phone, receiver_address)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        pdo_execute($sql, $order_code, $user_id, $total, $address, $phone, $note, $payment_method_id, $receiver_name, $receiver_phone, $receiver_address);
+    }
 
     // Thêm chi tiết đơn hàng
-    public function insert_orderdetails($order_id, $product_id, $quantity, $price, $sizes, $colors) {
-        $sql = "INSERT INTO orderdetails(order_id, product_id, quantity, price, sizes, colors) VALUES(?,?,?,?,?,?)";
-        pdo_execute($sql, $order_id, $product_id, $quantity, $price, $sizes, $colors);
+    public function insert_orderdetails($order_id, $product_id, $quantity, $price, $sizes, $colors, $name) {
+        $sql = "INSERT INTO orderdetails(order_id, product_id, quantity, price, sizes, colors, name) VALUES(?,?,?,?,?,?,?)";
+        pdo_execute($sql, $order_id, $product_id, $quantity, $price, $sizes, $colors, $name);
         return true;
     }
 

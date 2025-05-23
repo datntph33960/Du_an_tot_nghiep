@@ -41,11 +41,13 @@ try {
         $arr_price = $_POST["price"];
         $arr_size = $_POST["size"];
         $arr_color = $_POST["color"];
+        $arr_name = $_POST["name"];
 
         if (empty(array_filter($error))) {
             // B1: Insert vào orders
             $payment_method_id = 1; 
-            $OrderModel->insert_orders($user_id, $total, $address, $phone, $note, $payment_method_id, $receiver_name, $receiver_phone);
+            $order_code = 'DH' . time();
+            $OrderModel->insert_orders($user_id,$order_code, $total, $address, $phone, $note, $payment_method_id, $receiver_name, $receiver_phone);
 
             // B2: Lấy order_id
             $result_select = $OrderModel->select_order_id();
@@ -60,12 +62,13 @@ try {
                         $arr_quantity[$i],
                         $arr_price[$i],
                         $arr_size[$i],
-                        $arr_color[$i]
+                        $arr_color[$i],
+                        $arr_name[$i]
                     );
                 }
 
                 // B4: Xóa giỏ hàng
-                $OrderModel->delete_cart_by_user_id($user_id);
+                $OrderModel->delete_cart_item($user_id, $arr_product_id[$i]);  
 
                 // B5: Gửi mail
                 include_once "views/checkout/send-mail-order.php";
@@ -195,6 +198,7 @@ if (isset($_SESSION['user'])) {
                                         <input type="hidden" name="price[]" value="<?=$product_price?>">    
                                         <input type="hidden" name="size[]" value="<?=$product_size?>"> <!-- Hidden size -->
                                         <input type="hidden" name="color[]" value="<?=$product_color?>"> <!-- Hidden color -->
+                                        <input type="hidden" name="name[]" value="<?=$product_name?>">
 
                                         <?=$i?>.
                                         <?=$product_name?>

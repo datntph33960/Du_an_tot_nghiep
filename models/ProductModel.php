@@ -11,6 +11,10 @@
  
             return pdo_query_one($sql, $id);
         }
+        public function get_product_by_id($product_id) {
+            $sql = "SELECT * FROM products WHERE product_id = ?";
+            return pdo_query_one($sql, $product_id);
+        }
 
         public function select_products_order_by($limit, $order_by) {
             $sql = "SELECT * FROM products WHERE status = 1 ORDER BY product_id $order_by LIMIT $limit";
@@ -119,6 +123,10 @@
             }
         
             return false;
+        }
+        public function get_product_variants($product_id) {
+            $sql = "SELECT size, color, quantity FROM product_variants WHERE product_id = ?";
+            return pdo_query($sql, $product_id);
         }
         
     }

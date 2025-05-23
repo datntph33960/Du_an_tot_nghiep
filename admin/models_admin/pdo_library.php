@@ -93,5 +93,12 @@ function pdo_query_value($sql){
         unset($conn);
     }
 }
+function pdo_execute_return_lastInsertId($sql, ...$args) {
+    $conn = pdo_get_connection();
+    $stmt = $conn->prepare($sql);
+    $stmt->execute($args);
+    return $conn->lastInsertId();
+}
+
 
 ?>

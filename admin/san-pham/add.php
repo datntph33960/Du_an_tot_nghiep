@@ -170,7 +170,7 @@ $html_alert = $BaseModel->alert_error_success('', $success);
                         $safe_id = preg_replace('/\W+/', '', strtolower($size));
                     ?>
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" name="sizes[]" value="<?= $size ?>" id="size_<?= $safe_id ?>" <?= in_array($size, $selected_sizes) ? 'checked' : '' ?>>
+                        <input class="form-check-input" type="checkbox" name="sizes[]" value="<?= $size ?>" id="size_<?= $safe_id ?>" <?= in_array($size, $selected_sizes) ?>>
                         <label class="form-check-label" for="size_<?= $safe_id ?>"><?= $size ?></label>
                     </div>
                     <?php endforeach; ?>
@@ -191,7 +191,7 @@ $html_alert = $BaseModel->alert_error_success('', $success);
                         $color_slug = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $color));
                     ?>
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" name="colors[]" value="<?= $color ?>" id="color_<?= $color_slug ?>" <?= in_array($color, $selected_colors) ? 'checked' : '' ?>>
+                        <input class="form-check-input" type="checkbox" name="colors[]" value="<?= $color ?>" id="color_<?= $color_slug ?>" <?= in_array($color, $selected_colors) ?>>
                         <label class="form-check-label" for="color_<?= $color_slug ?>"><?= $color ?></label>
                     </div>
                     <?php endforeach; ?>

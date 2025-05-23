@@ -72,7 +72,7 @@
             ?>
             <div class="col-lg-3 col-md-4 col-sm-6 mix sach-1">
                 <div class="product__item sale">
-                    <div class="product__item__pic set-bg" data-setbg="upload/<?=$image?>">
+                    <div class="product__item__pic set-bg" data-setbg="upload/<?= explode(',', $image)[0] ?>">
                         <ul class="product__hover">
                             <li><a href="upload/<?=$image?>" class="image-popup"><span class="arrow_expand"></span></a></li>
                             <li>

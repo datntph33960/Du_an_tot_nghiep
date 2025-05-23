@@ -68,7 +68,7 @@
                             foreach ($list_post_catgories as $value) {
                                 extract($value);                              
                             ?>
-                            <li><a href="danh-muc-bai-viet&id=<?=$id?>"><?=$name?> <span>(<?=$qty_post?>)</span></a></li>
+                            <li><a href="index.php?url=danh-muc-bai-viet&id=<?=$id?>"><?=$name?> <span>(<?=$qty_post?>)</span></a></li>
                             <?php
                             }
                             ?>
